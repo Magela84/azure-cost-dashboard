@@ -26,9 +26,10 @@ a React + Tailwind frontend renders the data with Recharts.
   `ANTHROPIC_API_KEY`; works in mock mode too (mock numbers, real analysis).
 - **🧹 Idle Resource Hunter** — scans for resources that cost money but do
   nothing (unattached disks, unassociated public IPs, stale snapshots,
-  idle/deallocated VMs) and headlines total estimated monthly waste, with a
-  suggested action per finding. Idle-VM detection via CPU metrics is showcased
-  in mock mode; live-metric wiring is a planned enhancement.
+  deallocated VMs, and running VMs sitting near-idle on CPU) and headlines total
+  estimated monthly waste, with a suggested action per finding. Idle-VM
+  detection queries `Percentage CPU` over a 14-day window via `@azure/arm-monitor`
+  (implemented; not yet validated against a live subscription).
 
 > **Note:** Azure *budgets* (amount, current spend, notification thresholds) come
 > from the Consumption API, so budget alerts use `@azure/arm-consumption`.
@@ -135,6 +136,16 @@ This uses `concurrently` to start:
 | `npm run build` | Builds the React frontend (`frontend/dist`) |
 | `npm run mock` | Runs the backend with `MOCK_DATA=true` |
 | `npm run install:all` | Installs root, backend, and frontend deps |
+
+## Testing
+
+The backend has unit tests for the pure logic (forecast math, idle-resource
+aggregation) using Node's built-in test runner — no extra dependencies:
+
+```bash
+cd backend
+npm test
+```
 
 ## Azure Credentials
 

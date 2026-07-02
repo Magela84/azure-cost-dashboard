@@ -1,6 +1,7 @@
 // Idle Resource Hunter — finds resources that cost money but do nothing:
-// unattached managed disks, unassociated public IPs, stale snapshots, and
-// deallocated VMs whose disks are still billed. Each finding carries an
+// unattached managed disks, unassociated public IPs, stale snapshots,
+// deallocated VMs whose disks are still billed, and running VMs sitting
+// near-idle on CPU (via @azure/arm-monitor metrics). Each finding carries an
 // estimated monthly cost so the UI can headline total waste.
 //
 // Cost figures are rough US-region list-price estimates (see PRICING below) —
@@ -10,6 +11,7 @@
 const { DefaultAzureCredential } = require('@azure/identity');
 const { ComputeManagementClient } = require('@azure/arm-compute');
 const { NetworkManagementClient } = require('@azure/arm-network');
+const { MonitorClient } = require('@azure/arm-monitor');
 
 const mockIdle = require('../mocks/idleResources');
 
@@ -17,6 +19,7 @@ const subscriptionId = process.env.AZURE_SUBSCRIPTION_ID;
 
 let computeClient;
 let networkClient;
+let monitorClient;
 
 function useMock() {
   return process.env.MOCK_DATA === 'true';
@@ -38,6 +41,14 @@ function getNetworkClient() {
   return networkClient;
 }
 
+function getMonitorClient() {
+  if (!monitorClient) {
+    if (!subscriptionId) throw new Error('AZURE_SUBSCRIPTION_ID is not set');
+    monitorClient = new MonitorClient(new DefaultAzureCredential(), subscriptionId);
+  }
+  return monitorClient;
+}
+
 // Rough US-region list prices (USD/month).
 const PRICING = {
   disk: { Premium_LRS: 0.14, StandardSSD_LRS: 0.075, Standard_LRS: 0.05, UltraSSD_LRS: 0.15 },
@@ -45,6 +56,20 @@ const PRICING = {
   snapshotPerGb: 0.05, // $/GB-month
   publicIp: 3.65, // standard static IP, $/month
 };
+
+// Rough pay-as-you-go Linux VM list prices (USD/month) by size.
+const VM_PRICING = {
+  Standard_B2s: 30,
+  Standard_D2s_v3: 70,
+  Standard_D4s_v3: 140,
+  Standard_D8s_v3: 280,
+  Standard_E8s_v3: 400,
+};
+const VM_PRICE_DEFAULT = 100; // when the size isn't recognized
+
+// A running VM below this average CPU over the lookback window is "idle".
+const IDLE_CPU_THRESHOLD = 5; // percent
+const IDLE_LOOKBACK_DAYS = 14;
 
 const round2 = (n) => Number(Number(n).toFixed(2));
 
@@ -133,17 +158,39 @@ async function findUnassociatedPublicIps(network) {
   return findings;
 }
 
-// Deallocated VMs cost no compute, but their managed disks are still billed.
-// Requires a per-VM instanceView call, so failures are swallowed per VM.
-async function findDeallocatedVms(compute) {
+// Average "Percentage CPU" for a VM over the lookback window, or null if the
+// metric has no data points.
+async function avgCpuPercent(monitor, resourceId) {
+  const end = new Date();
+  const start = new Date(end.getTime() - IDLE_LOOKBACK_DAYS * 24 * 60 * 60 * 1000);
+  const result = await monitor.metrics.list(resourceId, {
+    timespan: `${start.toISOString()}/${end.toISOString()}`,
+    interval: 'PT6H',
+    metricnames: 'Percentage CPU',
+    aggregation: 'Average',
+  });
+  const data = result.value?.[0]?.timeseries?.[0]?.data || [];
+  const points = data.map((d) => d.average).filter((v) => typeof v === 'number');
+  if (!points.length) return null;
+  return points.reduce((a, b) => a + b, 0) / points.length;
+}
+
+// Flag two kinds of VM waste in one pass over the subscription's VMs:
+//   - deallocated VMs (compute is free, but their managed disks are still billed)
+//   - running VMs sitting near-idle on CPU
+// Each VM requires a per-VM instanceView (and, when running, a metrics query),
+// so failures are swallowed per VM rather than failing the whole scan.
+async function findVmWaste(compute, monitor) {
   const findings = [];
   for await (const vm of compute.virtualMachines.listAll()) {
     const rg = rgFromId(vm.id);
     if (!rg || !vm.name) continue;
+    const size = vm.hardwareProfile?.vmSize;
     try {
       const view = await compute.virtualMachines.instanceView(rg, vm.name);
       const power = (view.statuses || []).find((s) => s.code?.startsWith('PowerState/'));
       const state = power?.code?.replace('PowerState/', '');
+
       if (state === 'deallocated') {
         findings.push({
           id: vm.id,
@@ -152,13 +199,29 @@ async function findDeallocatedVms(compute) {
           resourceGroup: rg,
           region: vm.location,
           reason: 'VM is deallocated, but its managed disks are still billed.',
-          // Disk cost is reported separately if the disk is unattached; here we
-          // just flag the VM. Estimate left null when unknown.
+          // The disk cost shows up separately as an "Unattached Disk" finding;
+          // here we just flag the VM itself (no compute charge while off).
           monthlyCost: 0,
           currency: 'USD',
           actionHint: 'Delete the VM and its disks if it will not be restarted.',
-          details: { size: vm.hardwareProfile?.vmSize, powerState: 'deallocated' },
+          details: { size, powerState: 'deallocated' },
         });
+      } else if (state === 'running') {
+        const cpu = await avgCpuPercent(monitor, vm.id).catch(() => null);
+        if (cpu != null && cpu < IDLE_CPU_THRESHOLD) {
+          findings.push({
+            id: vm.id,
+            type: 'Idle VM',
+            name: vm.name,
+            resourceGroup: rg,
+            region: vm.location,
+            reason: `Running VM averaging ${cpu.toFixed(1)}% CPU over the last ${IDLE_LOOKBACK_DAYS} days.`,
+            monthlyCost: VM_PRICING[size] ?? VM_PRICE_DEFAULT,
+            currency: 'USD',
+            actionHint: 'Downsize, deallocate off-hours, or decommission.',
+            details: { size, avgCpuPercent: round2(cpu), powerState: 'running' },
+          });
+        }
       }
     } catch (_) {
       /* skip VMs we can't inspect */
@@ -193,18 +256,17 @@ async function getIdleResources() {
 
   const compute = getComputeClient();
   const network = getNetworkClient();
+  const monitor = getMonitorClient();
 
   // Run the independent scans in parallel; each is best-effort.
-  const [disks, snapshots, publicIps, deallocatedVms] = await Promise.all([
+  const [disks, snapshots, publicIps, vmWaste] = await Promise.all([
     findUnattachedDisks(compute).catch(() => []),
     findStaleSnapshots(compute).catch(() => []),
     findUnassociatedPublicIps(network).catch(() => []),
-    findDeallocatedVms(compute).catch(() => []),
+    findVmWaste(compute, monitor).catch(() => []),
   ]);
 
-  // NOTE: running-but-idle VM detection (low CPU via @azure/arm-monitor metrics)
-  // is showcased in mock mode; wiring it against live metrics is a future step.
-  return summarize([...disks, ...snapshots, ...publicIps, ...deallocatedVms]);
+  return summarize([...disks, ...snapshots, ...publicIps, ...vmWaste]);
 }
 
 module.exports = {
