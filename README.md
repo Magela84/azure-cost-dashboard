@@ -1,5 +1,7 @@
 # Azure Cost Visibility Dashboard
 
+[![CI](https://github.com/Magela84/Azure-Cost-optimization-tools/actions/workflows/ci.yml/badge.svg)](https://github.com/Magela84/Azure-Cost-optimization-tools/actions/workflows/ci.yml)
+
 A full-stack dashboard for visualizing Azure spend, budget alerts, and Logic App
 workflow status. A Node.js/Express backend queries the Azure management SDKs and
 a React + Tailwind frontend renders the data with Recharts.
