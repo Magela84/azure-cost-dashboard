@@ -1,0 +1,12 @@
+# Runs the whole dashboard (frontend + backend) as one container.
+# Create backend/.env first (copy backend/.env.example) — it supplies the
+# Azure credentials, ANTHROPIC_API_KEY, and AUTH_USER/AUTH_PASSWORD.
+
+services:
+  dashboard:
+    build: .
+    ports:
+      - '3001:3001'
+    env_file:
+      - backend/.env
+    restart: unless-stopped

@@ -101,6 +101,8 @@ cp backend/.env.example backend/.env
 | `PORT` | Backend port (default `3001`) |
 | `MOCK_DATA` | `true` serves demo data with no Azure calls |
 | `ANTHROPIC_API_KEY` | Enables the AI Cost Analyst ([console.anthropic.com](https://console.anthropic.com/)) |
+| `AUTH_USER` / `AUTH_PASSWORD` | If both set, HTTP Basic Auth protects the whole app (recommended before exposing it) |
+| `NODE_ENV` | `production` in deployment; the backend then serves the built frontend |
 
 ## Running
 
@@ -138,6 +140,38 @@ This uses `concurrently` to start:
 | `npm run build` | Builds the React frontend (`frontend/dist`) |
 | `npm run mock` | Runs the backend with `MOCK_DATA=true` |
 | `npm run install:all` | Installs root, backend, and frontend deps |
+
+## Deployment
+
+The whole app ships as **one container**: the frontend is built and served by
+the Express backend on a single origin (so the SPA and its `/api` calls share
+one host and one set of credentials).
+
+```bash
+# From the project root — create backend/.env first (see .env.example)
+docker compose up --build          # → http://localhost:3001
+# or plain Docker:
+docker build -t azure-cost-dashboard .
+docker run -p 3001:3001 --env-file backend/.env azure-cost-dashboard
+```
+
+Outside Docker, the same single-origin mode runs with:
+
+```bash
+npm --prefix frontend run build    # produces frontend/dist
+NODE_ENV=production npm --prefix backend start   # serves the SPA + API on :3001
+```
+
+### Authentication
+
+Set **`AUTH_USER`** and **`AUTH_PASSWORD`** to require HTTP Basic Auth on every
+request (the `/api/health` probe stays open). The browser prompts once and then
+attaches the credentials to all same-origin requests — including the SPA's API
+calls — so no secret is embedded in the frontend bundle. With the vars unset,
+the server logs a warning and runs unauthenticated (fine for local/mock use).
+
+> Basic Auth over plain HTTP sends credentials base64-encoded, not encrypted —
+> put the app behind TLS (a reverse proxy or platform HTTPS) when deploying.
 
 ## Testing
 
