@@ -8,6 +8,8 @@ const cors = require('cors');
 const costsRouter = require('./routes/costs');
 const alertsRouter = require('./routes/alerts');
 const logicAppsRouter = require('./routes/logicapps');
+const analystRouter = require('./routes/analyst');
+const idleRouter = require('./routes/idle');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -25,6 +27,8 @@ app.get('/api/health', (req, res) => {
 app.use('/api/costs', costsRouter);
 app.use('/api/alerts', alertsRouter);
 app.use('/api/logicapps', logicAppsRouter);
+app.use('/api/analyst', analystRouter);
+app.use('/api/idle', idleRouter);
 
 // Central error handler — must be registered after routes.
 app.use(errorHandler);

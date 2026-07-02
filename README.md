@@ -10,8 +10,25 @@ a React + Tailwind frontend renders the data with Recharts.
 |----------|------------|
 | Backend  | Node.js, Express |
 | Frontend | React, Tailwind CSS, Recharts, Vite |
-| Azure    | `@azure/arm-costmanagement`, `@azure/arm-consumption`, `@azure/arm-monitor`, `@azure/arm-logic`, `@azure/identity` |
+| Azure    | `@azure/arm-costmanagement`, `@azure/arm-consumption`, `@azure/arm-monitor`, `@azure/arm-logic`, `@azure/arm-compute`, `@azure/arm-network`, `@azure/identity` |
+| AI       | `@anthropic-ai/sdk` (Claude `claude-opus-4-8`) — powers the AI Cost Analyst |
 | Auth     | `DefaultAzureCredential` (env vars, managed identity, or Azure CLI login) |
+
+## Features
+
+- **Cost overview & by-service** — daily spend trend and per-service breakdown (Recharts).
+- **Spend forecast & budget burn-down** — trend-based month-end projection vs. budget.
+- **Budget alerts** — Consumption budgets with spend-vs-amount progress bars.
+- **Logic Apps status** — workflow state and latest run status.
+- **✨ AI Cost Analyst** — ask questions about your spend in plain English
+  ("Where can I save money this month?"). The backend feeds your live cost data
+  to Claude and streams the answer back token-by-token. Requires
+  `ANTHROPIC_API_KEY`; works in mock mode too (mock numbers, real analysis).
+- **🧹 Idle Resource Hunter** — scans for resources that cost money but do
+  nothing (unattached disks, unassociated public IPs, stale snapshots,
+  idle/deallocated VMs) and headlines total estimated monthly waste, with a
+  suggested action per finding. Idle-VM detection via CPU metrics is showcased
+  in mock mode; live-metric wiring is a planned enhancement.
 
 > **Note:** Azure *budgets* (amount, current spend, notification thresholds) come
 > from the Consumption API, so budget alerts use `@azure/arm-consumption`.
@@ -25,6 +42,7 @@ a React + Tailwind frontend renders the data with Recharts.
   - **Cost Management Reader** — cost/usage and budget queries
   - **Monitoring Reader** — metrics/alerts
   - **Logic Apps Contributor** — read Logic App workflows and run history
+  - **Reader** — enumerate disks, public IPs, snapshots, and VMs (Idle Resource Hunter)
 - Either the [Azure CLI](https://learn.microsoft.com/cli/azure/) (`az login`) **or**
   a service principal (see [Azure Credentials](#azure-credentials))
 - *(Mock mode needs none of the Azure prerequisites — see [Running](#running).)*
@@ -79,6 +97,7 @@ cp backend/.env.example backend/.env
 | `AZURE_RESOURCE_GROUP` | Resource group scoping Logic App queries |
 | `PORT` | Backend port (default `3001`) |
 | `MOCK_DATA` | `true` serves demo data with no Azure calls |
+| `ANTHROPIC_API_KEY` | Enables the AI Cost Analyst ([console.anthropic.com](https://console.anthropic.com/)) |
 
 ## Running
 
@@ -159,7 +178,10 @@ identity with the required roles. No secrets needed.
 | GET | `/api/costs/overview` | Total spend / daily trend (`?from=&to=`) |
 | GET | `/api/costs/by-service` | Spend grouped by service (`?from=&to=`) |
 | GET | `/api/alerts` | Budget alerts |
+| GET | `/api/costs/forecast` | Month-end spend projection + budget burn-down |
 | GET | `/api/logicapps` | Logic App workflow status |
+| POST | `/api/analyst/ask` | AI Cost Analyst — streams a Claude answer (SSE) for `{ question }` |
+| GET | `/api/idle` | Idle/orphaned resources with estimated monthly waste |
 
 Errors are returned as `{ error: true, message, code, timestamp }`.
 

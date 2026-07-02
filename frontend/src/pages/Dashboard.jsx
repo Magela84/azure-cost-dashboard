@@ -2,6 +2,9 @@
 
 import React, { useState } from 'react';
 
+import AiAnalyst from '../components/AiAnalyst';
+import IdleResources from '../components/IdleResources';
+import CostForecast from '../components/CostForecast';
 import CostOverview from '../components/CostOverview';
 import CostByService from '../components/CostByService';
 import BudgetAlerts from '../components/BudgetAlerts';
@@ -30,6 +33,9 @@ export default function Dashboard() {
       </header>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <AiAnalyst />
+        <IdleResources />
+        <CostForecast />
         <CostOverview range={range} />
         <CostByService range={range} />
         <BudgetAlerts />
