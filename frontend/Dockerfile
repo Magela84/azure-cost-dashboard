@@ -2,7 +2,7 @@
 # with nginx (which also proxies /api to the backend service).
 
 # --- Stage 1: build the SPA ---
-FROM node:18-alpine AS build
+FROM node:20-alpine AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
