@@ -1,0 +1,19 @@
+# Render Blueprint — deploys the dashboard as a single Docker web service.
+# https://render.com/docs/blueprint-spec
+#
+# Runs in mock mode (no Azure needed) on Render's free tier. To use real Azure
+# later, change MOCK_DATA to "false" and add the AZURE_* env vars in the Render
+# dashboard.
+
+services:
+  - type: web
+    name: azure-cost-dashboard
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: MOCK_DATA
+        value: "true"
+      - key: NODE_ENV
+        value: production
