@@ -1,0 +1,14 @@
+# Copy to terraform.tfvars and fill in. terraform.tfvars is gitignored.
+
+subscription_id = "00000000-0000-0000-0000-000000000000"
+location        = "eastus"
+
+# Optional overrides:
+# name_prefix            = "azcostdash"
+# resource_group_to_scan = "my-logic-apps-rg"   # defaults to the RG this stack creates
+# mock_data              = "false"               # "true" to run on demo data
+
+# Optional features (leave blank to disable):
+# anthropic_api_key = "sk-ant-..."
+# auth_user         = "admin"
+# auth_password     = "change-me"

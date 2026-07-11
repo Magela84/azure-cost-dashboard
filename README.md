@@ -162,6 +162,13 @@ npm --prefix frontend run build    # produces frontend/dist
 NODE_ENV=production npm --prefix backend start   # serves the SPA + API on :3001
 ```
 
+### Deploy to Azure (Terraform)
+
+Infrastructure-as-Code to host the app on Azure — a resource group, container
+registry, App Service, and a **managed identity with read-only roles** (so the
+running app reads Azure with no secrets) — lives in [`terraform/`](terraform/).
+See [terraform/README.md](terraform/README.md) for the full flow.
+
 ### Authentication
 
 Set **`AUTH_USER`** and **`AUTH_PASSWORD`** to require HTTP Basic Auth on every
