@@ -2,6 +2,15 @@
 
 ## Overview
 A full-stack dashboard for visualizing **Azure spend**, budget alerts, resource utilization, and Logic App workflow status. The backend uses **Node.js/Express** to query Azure’s management APIs, while a **React + Tailwind** frontend renders interactive charts and dashboards. The platform includes AI-powered cost analysis and an Idle Resource Hunter for cost optimization.
+## Live Demo
+
+Check out the running dashboard here:  
+**[https://azure-cost-dashboard.onrender.com/](https://azure-cost-dashboard.onrender.com/)**
+
+## screenshots/dashboard.png
+
+
+![Azure Cost Dashboard](screenshots/dashboard.png)
 
 ## Problem Statement
 Cloud cost overruns and lack of visibility threatened financial control for Azure workloads:
