@@ -7,10 +7,13 @@ A full-stack dashboard for visualizing **Azure spend**, budget alerts, resource 
 Check out the running dashboard here:  
 **[https://azure-cost-dashboard.onrender.com/](https://azure-cost-dashboard.onrender.com/)**
 
-## screenshots/dashboard.png
+## 📸 Screenshots
 
-
-![Azure Cost Dashboard](screenshots/dashboard.png)
+| Cost Overview & By Service | Idle Resource Hunter |
+| :---: | :---: |
+| ![Cost overview and by-service](screenshots/overview.png) | ![Idle Resource Hunter](screenshots/idle-hunter.png) |
+| **Spend Forecast & Budget Burn-Down** | **Budget Alerts** |
+| ![Spend forecast and budget burn-down](screenshots/forecast.png) | ![Budget alerts](screenshots/budget-alerts.png) |
 
 ## Problem Statement
 Cloud cost overruns and lack of visibility threatened financial control for Azure workloads:
@@ -87,14 +90,6 @@ See `terraform/README.md` for full cloud deployment instructions.
 | GET    | /api/logicapps          | Logic App workflow status                              |
 | POST   | /api/analyst/ask        | AI Cost Analyst — ask questions in plain English       |
 | GET    | /api/idle               | Idle/orphaned resources and estimated waste            |
-
-## Screenshots
-
-| View               | Screenshot                          |
-|--------------------|-------------------------------------|
-| Dashboard overview | docs/screenshot-dashboard.png        |
-| Cost by service    | docs/screenshot-by-service.png       |
-| Budget alerts      | docs/screenshot-alerts.png           |
 
 ## Value Delivered
 - **Centralized, real-time Azure cost visibility**
