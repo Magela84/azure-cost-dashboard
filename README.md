@@ -92,6 +92,11 @@ See `terraform/README.md` for full cloud deployment instructions.
 - **AI-powered recommendations** for cost savings
 - **Automated detection of idle resources and spend anomalies**
 - **Ready-to-use dashboards** for finance, engineering, and cloud teams
+## Resume Highlights
+
+- **Azure Cost Dashboard:** Built and deployed dashboards in Azure Monitor Workbooks using Cost Management APIs for real-time, tag-based spend visibility
+- **FinOps Cost Reduction:** Reduced Azure costs by 20% ($1,000/year) through VM right-sizing audits and automated scheduling
+- **Process Automation:** Automated VM power-scheduling and backup verification with PowerShell, saving 10–15 hours/week
 
 ## Author
 **Magela Bobby Akinola**  
