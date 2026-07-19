@@ -98,7 +98,7 @@ See `terraform/README.md` for full cloud deployment instructions.
 - **Ready-to-use dashboards** for finance, engineering, and cloud teams
 ## Resume Highlights
 
-- **Azure Cost Dashboard:** Built and deployed dashboards in Azure Monitor Workbooks using Cost Management APIs for real-time, tag-based spend visibility
+- **Azure Cost Dashboard:** Built and deployed a custom full-stack dashboard (React + Node.js/Express) using the Azure Cost Management APIs for real-time, per-service spend visibility
 - **FinOps Cost Reduction:** Reduced Azure costs by 20% ($1,000/year) through VM right-sizing audits and automated scheduling
 - **Process Automation:** Automated VM power-scheduling and backup verification with PowerShell, saving 10–15 hours/week
 
