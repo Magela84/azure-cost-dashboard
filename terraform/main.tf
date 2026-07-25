@@ -77,3 +77,38 @@ resource "azurerm_linux_web_app" "app" {
     AUTH_PASSWORD     = var.auth_password
   }
 }
+# 1. Create a Secure Private Container Registry (ACR)
+resource "azurerm_container_registry" "acr" {
+  name                     = "acrcostdashboardvault99" # Must be globally unique (letters/numbers only)
+  resource_group_name      = azurerm_resource_group.network_rg.name
+  location                 = azurerm_resource_group.network_rg.location
+  sku                      = "Standard"
+  admin_enabled            = true
+}
+
+# 2. Deploy the Managed Azure Kubernetes Service (AKS) Cluster
+resource "azurerm_kubernetes_cluster" "aks" {
+  name                = "aks-cost-dashboard-cluster"
+  location            = azurerm_resource_group.network_rg.location
+  resource_group_name = azurerm_resource_group.network_rg.name
+  dns_prefix          = "aks-cost-k8s"
+
+  default_node_pool {
+    name           = "systempool"
+    node_count     = 1               # Keeps your portfolio testing budget safe
+    vm_size        = "Standard_B2s"  # Cost-effective cluster instance
+    vnet_subnet_id = azurerm_subnet.app_subnet.id # Hooks AKS into your existing network
+  }
+
+  identity {
+    type = "SystemAssigned"
+  }
+}
+
+# 3. Security Bridge: Grant AKS permission to pull images from your ACR vault
+resource "azurerm_role_assignment" "aks_acr_link" {
+  principal_id                     = azurerm_kubernetes_cluster.aks.kubelet_identity.object_id
+  role_definition_name             = "AcrPull"
+  scope                            = azurerm_container_registry.acr.id
+  skip_service_principal_aad_check = true
+}
