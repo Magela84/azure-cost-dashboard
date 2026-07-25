@@ -1,0 +1,48 @@
+name: 'Azure Cost Dashboard Container GitOps Pipeline'
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    name: 'Package and Deploy API to AKS'
+    runs-on: ubuntu-latest
+
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Azure CLI Login
+      uses: azure/login@v2
+      with:
+        creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+    - name: Authenticate ACR Docker Registry
+      run: az acr login --name acrcostdashboardvault99
+
+    # Packages your real Express app/Node files into a clean Docker image
+    - name: Build and Push Cost Backend Image
+      run: |
+        docker build -t acrcostdashboardvault99.azurecr.io/cost-backend:latest ./backend
+        docker push acrcostdashboardvault99.azurecr.io/cost-backend:latest
+
+    - name: Connect to AKS Cluster Context
+      uses: azure/aks-set-context@v4
+      with:
+        resource-group: 'rg-enterprise-prod-networks'
+        cluster-name: 'aks-cost-dashboard-cluster'
+
+    - name: Run Helm Upgrade Deployment
+      run: |
+        helm upgrade --install cost-backend ./charts/cost-backend --namespace default
