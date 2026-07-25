@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cost-backend-deployment
+  labels:
+    app: cost-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cost-backend
+  template:
+    metadata:
+      labels:
+        app: cost-backend
+    spec:
+      containers:
+        - name: cost-api
+          image: acrcostdashboardvault99.azurecr.io/cost-backend:latest
+          ports:
+            - containerPort: 5000
