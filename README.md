@@ -22,28 +22,31 @@ This dashboard empowers proactive savings, quick audits, and audit-ready complia
 Backend: Node.js, Express, Azure APIs
 Frontend: React, Tailwind CSS, Recharts
 AI Layer: Anthropic Claude for advanced cost intelligence
+Container Orchestration: Azure Kubernetes Service (AKS)
 Authentication: Azure Identity & HTTP Basic Auth
 How I Connected the App to Azure1. Local Development
 Initialized an Azure Functions Node.js v4 backend using VS Code
 Installed the official Azure Identity and Cost Management SDKs
 Developed API endpoints to query Daily Actual Costs from the Azure subscription
 Successfully tested data output locally on localhost:7071
-2. Infrastructure Setup
+2. Infrastructure & AKS Deployment
 Logged into Azure via the Azure CLI from the local workspace
 Automated the creation of an isolated Resource Group and Storage Account in Azure
-Provisioned a live, serverless Azure Function App running Node.js 24
+Provisioned an Azure Kubernetes Service (AKS) cluster to orchestrate and run containerized application components (frontend and/or backend)
+Built and containerized application images, then deployed them to AKS for scalable, high-availability hosting
 3. Cloud Security Hardening
-Deployed the backend to Azure using the Core Tools publisher
+Deployed backend code and containers using the Core Tools publisher and Azure Container Registry
 Enabled a passwordless System-Assigned Managed Identity for secure cloud authentication
 Assigned Least-Privilege Cost Management Reader (RBAC) permissions to the app identity
 Hardened network security by whitelisting the frontend Render website domain via CORS
 4. Code Integration
 Opened the online frontend code repository in GitHub
-Updated the data source URL to point to the live Azure Function API
-Verified the end-to-end data loop was live and healthy using Azure Log Streams
+Updated the data source URL to point to the live Azure Function API and AKS endpoints
+Verified the end-to-end data loop was live and healthy using Azure Log Streams and AKS monitoring tools
 Value Delivered
 Real-time Azure cost visibility—no more manual spreadsheets!
 Automated anomaly and idle resource detection
 AI-powered recommendations for savings and regulatory compliance
+Containerized, scalable architecture using AKS for enterprise-grade reliability
 AuthorMagela Bobby Akinola
 LinkedIn | Portfolio | GitHub
