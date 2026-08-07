@@ -31,21 +31,36 @@ Designed for **finance, healthcare, insurance, and e-commerce**, this enterprise
 
 ## Business Value
 
-Manual cloud cost tracking and uncontrolled spending can quickly become expensive, especially in regulated industries.
-
-This solution provides finance and cloud teams with a **single source of truth** for Azure spending by delivering:
-
-- Real-time cloud cost visibility
-- Early detection of overspending
-- Automated budget monitoring
-- AI-driven optimization recommendations
-- Audit-ready reporting for compliance teams
-
-The result is **greater financial transparency, improved governance, and lower Azure operating costs.**
+Manual tracking and cloud cost overruns can threaten financial control, especially in regulated sectors.
+This dashboard empowers proactive savings, quick audits, and audit-ready compliance by centralizing cost analytics and automating budget alerts.
 
 ---
 
 ## Tech Stack
+Backend: Node.js, Express, Azure APIs
+Frontend: React, Tailwind CSS, Recharts
+AI Layer: Anthropic Claude for advanced cost intelligence
+Container Orchestration: Azure Kubernetes Service (AKS)
+Authentication: Azure Identity & HTTP Basic Auth
+
+How I Connected the App to Azure
+1. Local Development
+
+    Initialized an Azure Functions Node.js v4 backend using VS Code
+    Installed the official Azure Identity and Cost Management SDKs
+    Developed API endpoints to query Daily Actual Costs from the Azure subscription
+    Successfully tested data output locally on localhost:7071
+
+2. Infrastructure & AKS Deployment
+
+    Logged into Azure via the Azure CLI from the local workspace
+    Automated the creation of an isolated Resource Group and Storage Account in Azure
+    Provisioned an Azure Kubernetes Service (AKS) cluster to orchestrate and run containerized application components (frontend and/or backend)
+    Built and containerized application images, then deployed them to AKS for scalable, high-availability hosting
+
+
+
+
 
 ### Backend
 
