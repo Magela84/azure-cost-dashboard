@@ -34,16 +34,16 @@ Designed for **finance, healthcare, insurance, and e-commerce**, this enterprise
 Manual tracking and cloud cost overruns can threaten financial control, especially in regulated sectors.
 This dashboard empowers proactive savings, quick audits, and audit-ready compliance by centralizing cost analytics and automating budget alerts.
 
----
+Tech Stack
 
-## Tech Stack
-Backend: Node.js, Express, Azure APIs
-Frontend: React, Tailwind CSS, Recharts
-AI Layer: Anthropic Claude for advanced cost intelligence
-Container Orchestration: Azure Kubernetes Service (AKS)
-Authentication: Azure Identity & HTTP Basic Auth
+    Backend: Node.js, Express, Azure APIs
+    Frontend: React, Tailwind CSS, Recharts
+    AI Layer: Anthropic Claude for advanced cost intelligence
+    Container Orchestration: Azure Kubernetes Service (AKS)
+    Authentication: Azure Identity & HTTP Basic Auth
 
 How I Connected the App to Azure
+
 1. Local Development
 
     Initialized an Azure Functions Node.js v4 backend using VS Code
@@ -58,12 +58,18 @@ How I Connected the App to Azure
     Provisioned an Azure Kubernetes Service (AKS) cluster to orchestrate and run containerized application components (frontend and/or backend)
     Built and containerized application images, then deployed them to AKS for scalable, high-availability hosting
 
-2. Infrastructure & AKS Deployment
+3. Cloud Security Hardening
 
-    Logged into Azure via the Azure CLI from the local workspace
-    Automated the creation of an isolated Resource Group and Storage Account in Azure
-    Provisioned an Azure Kubernetes Service (AKS) cluster to orchestrate and run containerized application components (frontend and/or backend)
-    Built and containerized application images, then deployed them to AKS for scalable, high-availability hosting
+    Deployed backend code and containers using the Core Tools publisher and Azure Container Registry
+    Enabled a passwordless System-Assigned Managed Identity for secure cloud authentication
+    Assigned Least-Privilege Cost Management Reader (RBAC) permissions to the app identity
+    Hardened network security by whitelisting the frontend Render website domain via CORS
+
+4. Code Integration
+
+    Opened the online frontend code repository in GitHub
+    Updated the data source URL to point to the live Azure Function API and AKS endpoints
+    Verified the end-to-end data loop was live and healthy using Azure Log Streams and AKS monitoring tools
 
 Value Delivered
 
@@ -71,22 +77,6 @@ Value Delivered
     Automated anomaly and idle resource detection
     AI-powered recommendations for savings and regulatory compliance
     Containerized, scalable architecture using AKS for enterprise-grade reliability
-
-
-### Security Implementation
-
-- Published backend using Azure Functions Core Tools
-- Stored container images in Azure Container Registry (ACR)
-- Enabled System-Assigned Managed Identity
-- Assigned least-privilege **Cost Management Reader** role using Azure RBAC
-- Configured CORS to allow only the frontend application
-
-### Application Integration
-
-- Connected the React frontend to the live Azure Function APIs
-- Updated API endpoints to communicate with Azure services
-- Validated end-to-end communication
-- Monitored application health using Azure Log Streams and AKS monitoring
 
 Author
 
