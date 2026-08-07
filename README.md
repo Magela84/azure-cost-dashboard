@@ -19,9 +19,8 @@ Designed for **finance, healthcare, insurance, and e-commerce**, this enterprise
 ## Screenshots
 
 | Cost Overview | Idle Resource Hunter |
-|---------------|----------------------|
-| ![](images/cost.png) | ![](images/idle.png) |
-
+|:-------------:|:--------------------:|
+| <img src="images/cost-overview.png" alt="Azure Cost Overview Dashboard" width="100%"> | <img src="images/idle-resource-hunter.png" alt="Idle Resource Hunter Dashboard" width="100%"> |
 
 ---
 
