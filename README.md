@@ -18,9 +18,9 @@ Designed for **finance, healthcare, insurance, and e-commerce**, this enterprise
 
 ## Screenshots
 
-| Cost Overview            | Idle Resource Hunter        |
-| :----------------------: | :------------------------: |
-| ![overview](screenshots/overview.png) | ![idle-hunter](screenshots/idle-hunter.png) |
+| Cost Overview | Idle Resource Hunter |
+|---------------|----------------------|
+| ![](images/cost.png) | ![](images/idle.png) |
 
 
 ---
