@@ -92,8 +92,3 @@ Author
 
 Magela Bobby Akinola
 LinkedIn | Portfolio | GitHub
-
-
-
-- **Portfolio:** https://magela84.github.io/magela-portfolio-website/
-- **GitHub:** https://github.com/Magela84
