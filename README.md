@@ -58,60 +58,20 @@ How I Connected the App to Azure
     Provisioned an Azure Kubernetes Service (AKS) cluster to orchestrate and run containerized application components (frontend and/or backend)
     Built and containerized application images, then deployed them to AKS for scalable, high-availability hosting
 
+2. Infrastructure & AKS Deployment
 
+    Logged into Azure via the Azure CLI from the local workspace
+    Automated the creation of an isolated Resource Group and Storage Account in Azure
+    Provisioned an Azure Kubernetes Service (AKS) cluster to orchestrate and run containerized application components (frontend and/or backend)
+    Built and containerized application images, then deployed them to AKS for scalable, high-availability hosting
 
+Value Delivered
 
+    Real-time Azure cost visibility—no more manual spreadsheets!
+    Automated anomaly and idle resource detection
+    AI-powered recommendations for savings and regulatory compliance
+    Containerized, scalable architecture using AKS for enterprise-grade reliability
 
-### Backend
-
-- Node.js
-- Express.js
-- Azure Cost Management APIs
-- Azure Functions
-
-### Frontend
-
-- React
-- Tailwind CSS
-- Recharts
-
-### AI Layer
-
-- Anthropic Claude for intelligent cost analysis and optimization recommendations
-
-### Cloud Platform
-
-- Microsoft Azure
-- Azure Kubernetes Service (AKS)
-- Azure Container Registry (ACR)
-
-### Security
-
-- Azure Managed Identity
-- Azure RBAC
-- Azure Identity SDK
-- HTTP Basic Authentication
-- Azure CORS Configuration
-
----
-
-## Azure Deployment Architecture
-
-### Local Development
-
-- Built an Azure Functions Node.js v4 backend using Visual Studio Code
-- Integrated Azure Identity and Azure Cost Management SDKs
-- Developed REST APIs to retrieve Azure Daily Actual Cost data
-- Tested all endpoints locally on `localhost:7071`
-
-### Azure Infrastructure
-
-- Logged into Azure using Azure CLI
-- Created an isolated Azure Resource Group
-- Provisioned Azure Storage Account
-- Built and deployed an Azure Kubernetes Service (AKS) cluster
-- Containerized frontend and backend services using Docker
-- Deployed workloads to AKS for high availability and scalability
 
 ### Security Implementation
 
@@ -128,42 +88,12 @@ How I Connected the App to Azure
 - Validated end-to-end communication
 - Monitored application health using Azure Log Streams and AKS monitoring
 
----
+Author
 
-## Value Delivered
+Magela Bobby Akinola
+LinkedIn | Portfolio | GitHub
 
-✔ Real-time Azure cost visibility across cloud services
 
-✔ AI-powered detection of idle and underutilized resources
 
-✔ Automated spend monitoring and budget alerts
-
-✔ Reduced manual reporting through centralized dashboards
-
-✔ Secure authentication using Managed Identity
-
-✔ Enterprise-grade scalability with Azure Kubernetes Service (AKS)
-
-✔ Improved cloud governance and financial accountability
-
----
-
-## Future Enhancements
-
-- Multi-subscription Azure support
-- Department-level cost allocation
-- Power BI integration
-- Predictive AI cost forecasting
-- Email and Microsoft Teams budget notifications
-- Azure Advisor integration
-- Cost anomaly detection using Azure Monitor
-
----
-
-## Author
-
-**Magela Bobby Akinola**
-
-- **LinkedIn:** https://linkedin.com/in/magela-akinola
 - **Portfolio:** https://magela84.github.io/magela-portfolio-website/
 - **GitHub:** https://github.com/Magela84
