@@ -37,7 +37,6 @@ Tech Stack
     AI Layer: Anthropic Claude for advanced cost intelligence
     Container Orchestration: Azure Kubernetes Service (AKS)
     Authentication: Azure Identity & HTTP Basic Auth
-
 How I Connected the App to Azure
 
 1. Local Development
