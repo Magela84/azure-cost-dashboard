@@ -18,14 +18,10 @@ Designed for **finance, healthcare, insurance, and e-commerce**, this enterprise
 
 ## Screenshots
 
-| Cost Overview | Idle Resource Hunter |
-|:-------------:|:--------------------:|
-| ![Cost Overview](images/cost-overview.png) | ![Idle Resource Hunter](images/idle-resource-hunter.png) |
+| Cost Overview            | Idle Resource Hunter        |
+| :----------------------: | :------------------------: |
+| ![overview](screenshots/overview.png) | ![idle-hunter](screenshots/idle-hunter.png) |
 
-> **Note:** Save your screenshots inside an **images** folder in your repository using the filenames:
->
-> - `images/cost-overview.png`
-> - `images/idle-resource-hunter.png`
 
 ---
 
@@ -81,4 +77,5 @@ Value Delivered
 Author
 
 Magela Bobby Akinola
+
 LinkedIn | Portfolio | GitHub
