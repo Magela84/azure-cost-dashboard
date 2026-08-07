@@ -1,5 +1,4 @@
-Azure Cost Visibility DashboardIndustry Focus:
-Built for finance, healthcare, insurance, and e-commerce, this dashboard provides real-time Azure spend visibility, AI-powered cost control, and automated resource optimization—addressing strict compliance and transparency needs.Key Features
+Azure Cost Visibility DashboardIndustry FocusBuilt for finance, healthcare, insurance, and e-commerce, this dashboard provides real-time Azure spend visibility, AI-powered cost control, and automated resource optimization—addressing strict compliance and transparency needs.Key Features
 Centralized Azure spend tracking with clear per-service breakdowns
 AI-driven cost analysis, including idle resource detection
 Budget forecasts, burn-down charts, and automated alerts
