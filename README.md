@@ -4,6 +4,7 @@
 Designed for **finance, healthcare, insurance, and e-commerce**, this enterprise-ready dashboard delivers **real-time Azure cost visibility**, **AI-powered spend optimization**, and **automated resource intelligence**—helping organizations improve governance, reduce cloud waste, and maintain compliance.
 
 Project Overview
+
 The Azure Cost Visibility Dashboard is an enterprise cloud cost management solution that provides real-time visibility into Azure spending, AI-powered cost analysis, and automated resource optimization. Built with React, Node.js, Azure Functions, and Azure Kubernetes Service (AKS), the application securely retrieves Azure Cost Management data using Azure Managed Identity and Role-Based Access Control (RBAC). It enables finance, engineering, and cloud operations teams to monitor cloud costs, identify optimization opportunities, reduce unnecessary spending, and strengthen cloud governance across Azure environments.
 ---
 
