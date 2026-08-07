@@ -1,4 +1,4 @@
-Azure Cost Visibility DashboardOverviewThe Azure Cost Visibility Dashboard is a cloud-native solution designed to provide organizations in finance, healthcare, insurance, and e-commerce with real-time insights into Azure expenditure. Leveraging AI-powered analytics, it enables proactive cost control and automated resource optimization while supporting strict compliance requirements.Features
+Azure Cost Visibility DashboardOverviewThe Azure Cost Visibility Dashboard is a cloud-native solution designed for organizations in finance, healthcare, insurance, and e-commerce. It delivers real-time insights into Azure expenditure, leverages AI-powered analytics, and enables proactive cost control and automated resource optimization—while supporting strict compliance requirements.Features
 Centralized Cost Tracking: Unified view of Azure spending with detailed per-service breakdowns.
 AI-Powered Analytics: Automated analysis to detect idle resources and spending anomalies.
 Forecasting & Alerts: Predictive budget forecasts, burn-down charts, and automated alerting to prevent overruns.
