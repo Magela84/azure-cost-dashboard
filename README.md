@@ -16,4 +16,6 @@ Ready-made dashboards for finance, engineering, and cloud teams
 | :----------------------: | :------------------------: |
 | ![overview](screenshots/overview.png) | ![idle-hunter](screenshots/idle-hunter.png) |
 
----
+Business Value
+Manual tracking and cloud cost overruns can threaten financial control, especially in regulated sectors.
+This dashboard empowers proactive savings, quick audits, and audit-ready compliance by centralizing cost analytics and automating budget alerts.
