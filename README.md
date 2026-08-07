@@ -1,11 +1,15 @@
 # Azure Cost Visibility Dashboard
 
-**Industry Relevance:**  
+## Industry Relevance
+
 Designed for **finance, healthcare, insurance, and e-commerce**, this enterprise-ready dashboard delivers **real-time Azure cost visibility**, **AI-powered spend optimization**, and **automated resource intelligence**—helping organizations improve governance, reduce cloud waste, and maintain compliance.
 
-Project Overview
+---
 
-The Azure Cost Visibility Dashboard is an enterprise cloud cost management solution that provides real-time visibility into Azure spending, AI-powered cost analysis, and automated resource optimization. Built with React, Node.js, Azure Functions, and Azure Kubernetes Service (AKS), the application securely retrieves Azure Cost Management data using Azure Managed Identity and Role-Based Access Control (RBAC). It enables finance, engineering, and cloud operations teams to monitor cloud costs, identify optimization opportunities, reduce unnecessary spending, and strengthen cloud governance across Azure environments.
+## Project Overview
+
+The **Azure Cost Visibility Dashboard** is an enterprise cloud cost management solution that provides real-time visibility into Azure spending, AI-powered cost analysis, and automated resource optimization. Built with **React**, **Node.js**, **Azure Functions**, and **Azure Kubernetes Service (AKS)**, the application securely retrieves Azure Cost Management data using **Azure Managed Identity** and **Role-Based Access Control (RBAC)**. It enables finance, engineering, and cloud operations teams to monitor cloud costs, identify optimization opportunities, reduce unnecessary spending, and strengthen cloud governance across Azure environments.
+
 ---
 
 ## Key Features
@@ -23,59 +27,96 @@ The Azure Cost Visibility Dashboard is an enterprise cloud cost management solut
 
 | Cost Overview | Idle Resource Hunter |
 |:-------------:|:--------------------:|
-| ![](images/cost-overview.png) | ![](images/idle-resource-hunter.png) |
+| ![Cost Overview](screenshots/cost-overview.png) | ![Idle Resource Hunter](screenshots/idle-resource-hunter.png) |
+
 ---
 
 ## Business Value
 
-Manual tracking and cloud cost overruns can threaten financial control, especially in regulated sectors.
-This dashboard empowers proactive savings, quick audits, and audit-ready compliance by centralizing cost analytics and automating budget alerts.
+Manual cloud cost tracking and uncontrolled spending can threaten financial control, especially in regulated industries. This dashboard empowers organizations to reduce cloud waste, improve financial governance, simplify audits, and maintain compliance by centralizing cost analytics and automating budget monitoring.
 
-Tech Stack
+---
 
-    Backend: Node.js, Express, Azure APIs
-    Frontend: React, Tailwind CSS, Recharts
-    AI Layer: Anthropic Claude for advanced cost intelligence
-    Container Orchestration: Azure Kubernetes Service (AKS)
-    Authentication: Azure Identity & HTTP Basic Auth
-How I Connected the App to Azure
+## Tech Stack
 
-1. Local Development
+### Backend
 
-    Initialized an Azure Functions Node.js v4 backend using VS Code
-    Installed the official Azure Identity and Cost Management SDKs
-    Developed API endpoints to query Daily Actual Costs from the Azure subscription
-    Successfully tested data output locally on localhost:7071
+- Node.js
+- Express.js
+- Azure Functions
+- Azure Cost Management APIs
 
-2. Infrastructure & AKS Deployment
+### Frontend
 
-    Logged into Azure via the Azure CLI from the local workspace
-    Automated the creation of an isolated Resource Group and Storage Account in Azure
-    Provisioned an Azure Kubernetes Service (AKS) cluster to orchestrate and run containerized application components (frontend and/or backend)
-    Built and containerized application images, then deployed them to AKS for scalable, high-availability hosting
+- React
+- Tailwind CSS
+- Recharts
 
-3. Cloud Security Hardening
+### AI
 
-    Deployed backend code and containers using the Core Tools publisher and Azure Container Registry
-    Enabled a passwordless System-Assigned Managed Identity for secure cloud authentication
-    Assigned Least-Privilege Cost Management Reader (RBAC) permissions to the app identity
-    Hardened network security by whitelisting the frontend Render website domain via CORS
+- Anthropic Claude
 
-4. Code Integration
+### Cloud Platform
 
-    Opened the online frontend code repository in GitHub
-    Updated the data source URL to point to the live Azure Function API and AKS endpoints
-    Verified the end-to-end data loop was live and healthy using Azure Log Streams and AKS monitoring tools
+- Azure Kubernetes Service (AKS)
+- Azure Container Registry (ACR)
 
-Value Delivered
+### Security
 
-    Real-time Azure cost visibility—no more manual spreadsheets!
-    Automated anomaly and idle resource detection
-    AI-powered recommendations for savings and regulatory compliance
-    Containerized, scalable architecture using AKS for enterprise-grade reliability
+- Azure Managed Identity
+- Role-Based Access Control (RBAC)
+- HTTP Basic Authentication
+- CORS Configuration
 
-Author
+---
 
-Magela Bobby Akinola
+## Deployment
 
-LinkedIn | Portfolio | GitHub
+### 1. Local Development
+
+- Initialized an Azure Functions Node.js v4 backend using Visual Studio Code
+- Installed Azure Identity and Azure Cost Management SDKs
+- Developed REST APIs to retrieve Daily Actual Cost data from Azure
+- Tested the application locally on `localhost:7071`
+
+### 2. Infrastructure & AKS Deployment
+
+- Logged into Azure using Azure CLI
+- Created an isolated Resource Group and Storage Account
+- Provisioned an Azure Kubernetes Service (AKS) cluster
+- Built and containerized application images
+- Deployed containers to AKS for scalable, highly available hosting
+
+### 3. Cloud Security
+
+- Published backend services using Azure Functions Core Tools and Azure Container Registry
+- Enabled System-Assigned Managed Identity for passwordless authentication
+- Assigned the Cost Management Reader role using Azure RBAC
+- Configured CORS to allow only the frontend application
+
+### 4. Application Integration
+
+- Connected the React frontend to the live Azure Function APIs
+- Updated API endpoints to communicate with Azure services
+- Verified end-to-end connectivity using Azure Log Streams and AKS monitoring
+
+---
+
+## Value Delivered
+
+- Real-time Azure cost visibility across cloud services
+- Automated detection of spend anomalies and idle resources
+- AI-powered recommendations for cost savings
+- Improved cloud governance and financial transparency
+- Secure authentication using Azure Managed Identity
+- Enterprise-ready scalability with Azure Kubernetes Service (AKS)
+
+---
+
+## Author
+
+**Magela Bobby Akinola**
+
+- LinkedIn: https://linkedin.com/in/magela-akinola
+- Portfolio: https://magela84.github.io/magela-portfolio-website/
+- GitHub: https://github.com/Magela84
