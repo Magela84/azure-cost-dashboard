@@ -21,8 +21,25 @@ let computeClient;
 let networkClient;
 let monitorClient;
 
+// When running in mock mode, ids destroyed through the Destroy feature are
+// tracked here (in-memory) so the hunter stops reporting them. Real-mode
+// deletion needs no tracking — the resources simply disappear from Azure.
+const destroyedMockIds = new Set();
+
 function useMock() {
   return process.env.MOCK_DATA === 'true';
+}
+
+function markMockDestroyed(id) {
+  destroyedMockIds.add(id);
+}
+
+function isMockDestroyed(id) {
+  return destroyedMockIds.has(id);
+}
+
+function resetMockDestroyed() {
+  destroyedMockIds.clear();
 }
 
 function getComputeClient() {
@@ -252,7 +269,12 @@ function summarize(findings) {
  * @returns {Promise<object>} summary + findings
  */
 async function getIdleResources() {
-  if (useMock()) return summarize(mockIdle.getMockIdleResources());
+  if (useMock()) {
+    const findings = mockIdle
+      .getMockIdleResources()
+      .filter((f) => !destroyedMockIds.has(f.id));
+    return summarize(findings);
+  }
 
   const compute = getComputeClient();
   const network = getNetworkClient();
@@ -272,4 +294,7 @@ async function getIdleResources() {
 module.exports = {
   getIdleResources,
   subscriptionId,
+  markMockDestroyed,
+  isMockDestroyed,
+  resetMockDestroyed,
 };

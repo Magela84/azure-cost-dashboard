@@ -15,6 +15,7 @@ build/
 # Logs
 *.log
 npm-debug.log*
+backend/logs/
 
 # OS / editor
 .DS_Store

@@ -27,6 +27,26 @@ async function getJson(path, params) {
   return res.json();
 }
 
+async function postJson(path, body) {
+  const res = await fetch(path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    let message = `Request failed (${res.status})`;
+    try {
+      const parsed = await res.json();
+      if (parsed.message) message = parsed.message;
+      else if (typeof parsed.error === 'string') message = parsed.error;
+    } catch (_) {
+      /* non-JSON error body */
+    }
+    throw new Error(message);
+  }
+  return res.json();
+}
+
 export const api = {
   costOverview: (range) => getJson('/api/costs/overview', range),
   costByService: (range) => getJson('/api/costs/by-service', range),
@@ -34,6 +54,10 @@ export const api = {
   alerts: () => getJson('/api/alerts'),
   logicApps: () => getJson('/api/logicapps'),
   idleResources: () => getJson('/api/idle'),
+  // Permanently destroy idle/orphaned resources. `resources` is an array of
+  // { id, type, name, monthlyCost } — see backend destroyService for details.
+  idleDestroy: (resources) => postJson('/api/idle/destroy', { resources, confirm: true }),
+  idleDestroyAudit: () => getJson('/api/idle/destroy/audit'),
 };
 
 /**

@@ -17,6 +17,7 @@ The **Azure Cost Visibility Dashboard** is an enterprise cloud cost management s
 - Centralized Azure spend tracking with per-service cost breakdowns
 - AI-powered cost analysis and idle resource detection
 - Budget forecasting, burn-down charts, and automated alerts
+- One-click cleanup of idle/orphaned resources (destroy VMs, disks, snapshots, and orphaned public IPs directly from the Idle Resource Hunter)
 - Interactive dashboards for finance, engineering, and cloud operations teams
 - Secure Azure authentication using Managed Identity and RBAC
 - Scalable containerized deployment on Azure Kubernetes Service (AKS)
@@ -99,6 +100,57 @@ Manual cloud cost tracking and uncontrolled spending can threaten financial cont
 - Connected the React frontend to the live Azure Function APIs
 - Updated API endpoints to communicate with Azure services
 - Verified end-to-end connectivity using Azure Log Streams and AKS monitoring
+
+---
+
+## Destroying Idle Resources
+
+The **Idle Resource Hunter** can also permanently delete the waste it finds. Select
+resources, click **Destroy selected**, and confirm — each finding is deleted one by
+one and the results (plus the audit trail) are shown.
+
+### What each type does
+
+| Type | Action |
+|------|--------|
+| Idle VM / Deallocated VM | Deletes the VM **and** its managed OS/data disks |
+| Unattached Disk | Deletes the managed disk |
+| Stale Snapshot | Deletes the snapshot |
+| Unassociated Public IP | Deletes the public IP address |
+
+> **⚠️ Warning:** Deletion is irreversible. VMs are deleted along with their disks
+> (data loss). The UI always requires an explicit confirmation before anything runs.
+
+### Safety & permissions
+
+- The API requires `confirm: true` in the request body — a plain request is rejected with `400`.
+- Every destroy is recorded in an audit log, exposed at `GET /api/idle/destroy/audit`
+  (in-memory; also mirrored to `backend/logs/destroy-audit.jsonl` on a best-effort basis).
+- The service principal behind `DefaultAzureCredential` must have delete rights at
+  subscription or resource-group scope, e.g. the **Contributor** role or a custom role
+  granting `Microsoft.Compute/virtualMachines/delete`, `Microsoft.Compute/disks/delete`,
+  `Microsoft.Compute/snapshots/delete`, and `Microsoft.Network/publicIPAddresses/delete`.
+- The whole app is guarded by HTTP Basic Auth when `AUTH_USER`/`AUTH_PASSWORD` are set —
+  keep them configured before exposing the dashboard.
+
+### API
+
+```http
+POST /api/idle/destroy
+Content-Type: application/json
+
+{
+  "confirm": true,
+  "resources": [
+    { "id": "/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Compute/virtualMachines/vm-01",
+      "type": "Idle VM", "name": "vm-01", "monthlyCost": 280.32 }
+  ]
+}
+```
+
+In mock mode (`MOCK_DATA=true`) nothing is deleted on Azure — findings are just marked
+as destroyed so they stop appearing in the scan, which lets you demo the flow without
+credentials.
 
 ---
 
