@@ -15,7 +15,7 @@ function StatusBadge({ status }) {
   const cls = RUN_STATUS_STYLES[status] || 'bg-gray-100 text-gray-600';
   return (
     <span className={`rounded px-2 py-0.5 text-xs font-medium ${cls}`}>
-      {status || 'Unknown'}
+      {status || 'Never ran'}
     </span>
   );
 }
@@ -23,6 +23,24 @@ function StatusBadge({ status }) {
 function formatTime(value) {
   if (!value) return '—';
   return new Date(value).toLocaleString();
+}
+
+// Runs (30d): always a number. Shows 0 for a workflow that hasn't run, and a
+// red "n failed" note when there were failures.
+function RunsCell({ runs }) {
+  if (!runs || typeof runs.runCount !== 'number') {
+    return <span className="text-gray-400">—</span>;
+  }
+  return (
+    <span className="font-semibold text-gray-900">
+      {runs.runCount}
+      {runs.failureCount > 0 && (
+        <span className="ml-1 font-medium text-red-600">
+          · {runs.failureCount} failed
+        </span>
+      )}
+    </span>
+  );
 }
 
 export default function LogicAppsStatus() {
@@ -46,6 +64,7 @@ export default function LogicAppsStatus() {
               <tr className="border-b border-gray-200 text-xs uppercase text-gray-400">
                 <th className="py-2 pr-4">Workflow</th>
                 <th className="py-2 pr-4">State</th>
+                <th className="py-2 pr-4 text-right">Runs (30d)</th>
                 <th className="py-2 pr-4">Last Run</th>
                 <th className="py-2">When</th>
               </tr>
@@ -55,6 +74,9 @@ export default function LogicAppsStatus() {
                 <tr key={wf.id || wf.name} className="border-b border-gray-100">
                   <td className="py-2 pr-4 font-medium text-gray-800">{wf.name}</td>
                   <td className="py-2 pr-4 text-gray-600">{wf.state}</td>
+                  <td className="py-2 pr-4 text-right">
+                    <RunsCell runs={wf.runs} />
+                  </td>
                   <td className="py-2 pr-4">
                     <StatusBadge status={wf.latestRun?.status} />
                   </td>

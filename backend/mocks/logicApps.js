@@ -22,6 +22,7 @@ function getMockLogicApps() {
         endTime: isoMinutesAgo(17),
         correlationId: 'run-9f3a2c',
       },
+      runs: { runCount: 31, successCount: 31, failureCount: 0, otherCount: 0, windowDays: 30 },
     },
     {
       name: 'nightly-cost-export',
@@ -36,6 +37,7 @@ function getMockLogicApps() {
         endTime: isoMinutesAgo(319),
         correlationId: 'run-4b71de',
       },
+      runs: { runCount: 31, successCount: 30, failureCount: 1, otherCount: 0, windowDays: 30 },
     },
     {
       name: 'alert-router',
@@ -50,6 +52,7 @@ function getMockLogicApps() {
         endTime: null,
         correlationId: 'run-c0ffee',
       },
+      runs: { runCount: 15, successCount: 14, failureCount: 0, otherCount: 1, windowDays: 30 },
     },
     {
       name: 'legacy-sync',
@@ -59,6 +62,7 @@ function getMockLogicApps() {
       createdTime: '2024-08-15T09:00:00Z',
       changedTime: '2026-03-10T16:45:00Z',
       latestRun: null,
+      runs: { runCount: 0, successCount: 0, failureCount: 0, otherCount: 0, windowDays: 30 },
     },
   ];
 }
