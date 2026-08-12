@@ -12,6 +12,7 @@ const logicAppsRouter = require('./routes/logicapps');
 const analystRouter = require('./routes/analyst');
 const idleRouter = require('./routes/idle');
 const scaleRouter = require('./routes/scale');
+const rightsizeRouter = require('./routes/rightsize');
 const errorHandler = require('./middleware/errorHandler');
 const basicAuth = require('./middleware/basicAuth');
 
@@ -37,6 +38,7 @@ app.use('/api/logicapps', logicAppsRouter);
 app.use('/api/analyst', analystRouter);
 app.use('/api/idle', idleRouter);
 app.use('/api/scale', scaleRouter);
+app.use('/api/rightsize', rightsizeRouter);
 
 // In a production build, serve the compiled frontend from this same origin so
 // the SPA and its /api calls share one host (and one set of Basic credentials).

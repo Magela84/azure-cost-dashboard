@@ -19,6 +19,7 @@ The **Azure Cost Visibility Dashboard** is an enterprise cloud cost management s
 - Budget forecasting, burn-down charts, and automated alerts
 - One-click cleanup of idle/orphaned resources (destroy VMs, disks, snapshots, and orphaned public IPs directly from the Idle Resource Hunter)
 - Right-size Azure VMs with a click (resize up or down from the **VM Scaling** section, using only the sizes Azure reports as available)
+- Utilization-based **right-sizing recommendations** with monthly savings estimates (find over- and under-provisioned VMs and apply downsizes directly)
 - Interactive dashboards for finance, engineering, and cloud operations teams
 - Secure Azure authentication using Managed Identity and RBAC
 - Scalable containerized deployment on Azure Kubernetes Service (AKS)
@@ -191,6 +192,41 @@ List VMs and their available sizes: `GET /api/scale/vms`.
 
 In mock mode (`MOCK_DATA=true`) resizes are simulated in-memory, so the flow is fully
 demoable without Azure credentials.
+
+---
+
+## Right-Sizing Recommendations
+
+The **Right-Sizing** section uses VM utilization (CPU + memory, last 14 days of Azure
+Monitor metrics) to flag VMs that are over- or under-provisioned, and shows the estimated
+monthly cost impact of the recommended size:
+
+- **▼ downsize** — utilization is comfortably below capacity; the recommendation saves money
+  each month (`current size → cheaper size`, savings shown as `−$/mo`).
+- **▲ upsize** — utilization is consistently above 85%; the VM is at risk of
+  under-provisioning, and the extra cost of the larger size is shown as `+$/mo`.
+- Recommended sizes are chosen from the same Azure-available size list used by VM Scaling,
+  sized so the projected utilization after the change lands in a healthy band
+  (~35–80% CPU, ~50% memory).
+- Apply a downsize directly from the card — it reuses the **VM Scaling** resize flow, with the
+  same confirmation and audit-log safety, so both cards stay in sync.
+- Costs use pay-as-you-go list prices; the numbers are guidance, not a billing invoice.
+
+### API
+
+```http
+GET /api/rightsize
+```
+
+Returns `{ totalMonthlySavings, totalMonthlyCostRisk, count, currency, recommendations[] }`,
+each recommendation carrying `direction`, `currentSize`, `recommendedSize`, `avgCpuPct`,
+`avgMemoryPct`, `estimatedUtilAfterPct`, `monthlyCost` and `monthlySavings`.
+
+The service principal behind `DefaultAzureCredential` needs read access to Azure Monitor
+metrics (`Microsoft.Insights/Metrics/Read`, e.g. the **Monitoring Reader** role).
+
+In mock mode (`MOCK_DATA=true`) utilization comes from simulated values, so the feature is
+fully demoable without Azure credentials.
 
 ---
 

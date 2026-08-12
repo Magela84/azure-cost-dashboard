@@ -63,6 +63,8 @@ export const api = {
   // Resize VMs up/down. `resources` is an array of { id, targetSize, currentSize }.
   scaleVms: (resources) => postJson('/api/scale/vms/resize', { resources, confirm: true }),
   scaleAudit: () => getJson('/api/scale/audit'),
+  // Right-sizing recommendations (utilization-based) with savings estimates.
+  rightsize: () => getJson('/api/rightsize'),
 };
 
 /**

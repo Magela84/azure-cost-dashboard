@@ -59,6 +59,8 @@ const BASE_VMS = [
     resourceGroup: 'demo-rg',
     region: 'eastus',
     currentSize: 'Standard_D2s_v3',
+    avgCpuPct: 20,
+    avgMemoryPct: 30,
     availableSizeNames: [
       'Standard_B1s',
       'Standard_B2s',
@@ -74,6 +76,8 @@ const BASE_VMS = [
     resourceGroup: 'demo-rg',
     region: 'eastus',
     currentSize: 'Standard_D4s_v3',
+    avgCpuPct: 20,
+    avgMemoryPct: 30,
     availableSizeNames: [
       'Standard_D2s_v3',
       'Standard_D4s_v3',
@@ -88,6 +92,8 @@ const BASE_VMS = [
     resourceGroup: 'dev-rg',
     region: 'eastus',
     currentSize: 'Standard_B2s',
+    avgCpuPct: 15,
+    avgMemoryPct: 25,
     availableSizeNames: [
       'Basic_A0',
       'Basic_A1',
@@ -103,6 +109,8 @@ const BASE_VMS = [
     resourceGroup: 'prod-rg',
     region: 'eastus',
     currentSize: 'Standard_D8s_v3',
+    avgCpuPct: 45,
+    avgMemoryPct: 55,
     availableSizeNames: [
       'Standard_D4s_v3',
       'Standard_D8s_v3',
@@ -117,6 +125,8 @@ const BASE_VMS = [
     resourceGroup: 'analytics-rg',
     region: 'westeurope',
     currentSize: 'Standard_E8s_v3',
+    avgCpuPct: 55,
+    avgMemoryPct: 60,
     availableSizeNames: [
       'Standard_D8s_v3',
       'Standard_D16s_v3',
@@ -131,6 +141,8 @@ const BASE_VMS = [
     resourceGroup: 'demo-rg',
     region: 'eastus',
     currentSize: 'Standard_F4s_v2',
+    avgCpuPct: 12,
+    avgMemoryPct: 30,
     availableSizeNames: [
       'Standard_F2s_v2',
       'Standard_F4s_v2',
@@ -144,6 +156,8 @@ const BASE_VMS = [
     resourceGroup: 'db-rg',
     region: 'eastus',
     currentSize: 'Standard_E16s_v3',
+    avgCpuPct: 90,
+    avgMemoryPct: 95,
     availableSizeNames: [
       'Standard_E8s_v3',
       'Standard_E16s_v3',
@@ -156,7 +170,6 @@ const BASE_VMS = [
 
 // Simulated resizes, keyed by VM id (module scope so they persist in-process).
 const currentSizes = new Map();
-
 function sizeOf(name) {
   return SIZES.find((s) => s.name === name);
 }
@@ -173,6 +186,8 @@ function getMockVms() {
       resourceGroup: vm.resourceGroup,
       region: vm.region,
       currentSize: current,
+      avgCpuPct: vm.avgCpuPct,
+      avgMemoryPct: vm.avgMemoryPct,
       availableSizes: sizeNames
         .map(sizeOf)
         .filter(Boolean)
