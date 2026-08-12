@@ -12,6 +12,30 @@ function formatSize(size) {
   return `${size.name} (${size.cores} vCPU / ${size.memoryGB} GB)`;
 }
 
+// Which direction a candidate size sits relative to the VM's current size:
+// 'current', 'up' (bigger) or 'down' (smaller), based on its position in the
+// available-sizes list (which the backend sorts by size, low to high).
+function sizeDirection(vm, sizeName) {
+  const current = vm.availableSizes.findIndex((s) => s.name === vm.currentSize);
+  const target = vm.availableSizes.findIndex((s) => s.name === sizeName);
+  if (current < 0 || target < 0 || current === target) return 'current';
+  return target > current ? 'up' : 'down';
+}
+
+const DIR_INDICATOR = {
+  up: '▲',
+  down: '▼',
+  current: '',
+};
+
+function canGoUp(vm) {
+  return vm.availableSizes.some((s) => sizeDirection(vm, s.name) === 'up');
+}
+
+function canGoDown(vm) {
+  return vm.availableSizes.some((s) => sizeDirection(vm, s.name) === 'down');
+}
+
 export default function VMScaling() {
   const [reloadKey, setReloadKey] = useState(0);
   const { data, loading, error } = useFetch(() => api.vms(), [reloadKey]);
@@ -102,25 +126,50 @@ export default function VMScaling() {
                 return (
                   <tr key={vm.id} className="border-b border-gray-100">
                     <td className="py-2 pr-4">
-                      <div className="font-medium text-gray-800">{vm.name}</div>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="font-medium text-gray-800">{vm.name}</span>
+                        {canGoUp(vm) && (
+                          <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-xs font-semibold text-emerald-700">
+                            ▲ up
+                          </span>
+                        )}
+                        {canGoDown(vm) && (
+                          <span className="rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-700">
+                            ▼ down
+                          </span>
+                        )}
+                      </div>
                       <div className="text-xs text-gray-400">{vm.resourceGroup} · {vm.region}</div>
                     </td>
                     <td className="py-2 pr-4 text-gray-700">
                       {formatSize(vm.availableSizes.find((s) => s.name === vm.currentSize))}
+                      <span
+                        className="ml-1 inline-block rounded bg-emerald-50 px-1 text-xs font-semibold text-emerald-600"
+                        title="Current size"
+                      >
+                        current
+                      </span>
                     </td>
                     <td className="py-2 pr-4">
                       {vm.availableSizes.length > 0 ? (
                         <select
                           value={selected}
                           onChange={(e) => setTarget(vm.id, e.target.value)}
-                          className="rounded border border-gray-300 px-2 py-1 text-sm focus:border-indigo-400 focus:outline-none"
+                          className={`rounded border px-2 py-1 text-sm focus:outline-none ${
+                            changed
+                              ? 'border-indigo-400 bg-indigo-50 text-indigo-900'
+                              : 'border-gray-300'
+                          }`}
                         >
-                          {vm.availableSizes.map((s) => (
-                            <option key={s.name} value={s.name}>
-                              {s.name} ({s.cores} vCPU / {s.memoryGB} GB)
-                              {s.name === vm.currentSize ? ' (current)' : ''}
-                            </option>
-                          ))}
+                          {vm.availableSizes.map((s) => {
+                            const dir = sizeDirection(vm, s.name);
+                            return (
+                              <option key={s.name} value={s.name}>
+                                {s.name} ({s.cores} vCPU / {s.memoryGB} GB)
+                                {dir === 'up' ? '  ▲ up' : dir === 'down' ? '  ▼ down' : '  (current)'}
+                              </option>
+                            );
+                          })}
                         </select>
                       ) : (
                         <span className="text-xs text-gray-400">No sizes available</span>
@@ -146,8 +195,9 @@ export default function VMScaling() {
 
       {data && (
         <p className="mt-3 text-xs text-gray-400">
-          Only sizes Azure reports as available for each VM are shown. ▲ resize up ·
-          ▼ resize down. Resizing may briefly restart a running VM.
+          Only sizes Azure reports as available for each VM are shown. ▲ = resize up
+          (bigger, costs more) · ▼ = resize down (smaller, saves money). Resizing may
+          briefly restart a running VM.
         </p>
       )}
 
