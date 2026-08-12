@@ -7,6 +7,12 @@ function isoMinutesAgo(minutes) {
   return d.toISOString();
 }
 
+function isoDaysAgo(days) {
+  const d = new Date();
+  d.setDate(d.getDate() - days);
+  return d.toISOString();
+}
+
 function getMockLogicApps() {
   return [
     {
@@ -61,7 +67,15 @@ function getMockLogicApps() {
       location: 'eastus',
       createdTime: '2024-08-15T09:00:00Z',
       changedTime: '2026-03-10T16:45:00Z',
-      latestRun: null,
+      // Disabled now, but it ran successfully before being switched off. The
+      // latest run is outside the 30-day counting window, so Runs (30d) is 0
+      // while Last Run still shows the historical result.
+      latestRun: {
+        status: 'Succeeded',
+        startTime: isoDaysAgo(120),
+        endTime: isoDaysAgo(120),
+        correlationId: 'run-le6acy',
+      },
       runs: { runCount: 0, successCount: 0, failureCount: 0, otherCount: 0, windowDays: 30 },
     },
   ];
