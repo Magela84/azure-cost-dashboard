@@ -18,6 +18,7 @@ The **Azure Cost Visibility Dashboard** is an enterprise cloud cost management s
 - AI-powered cost analysis and idle resource detection
 - Budget forecasting, burn-down charts, and automated alerts
 - One-click cleanup of idle/orphaned resources (destroy VMs, disks, snapshots, and orphaned public IPs directly from the Idle Resource Hunter)
+- Right-size Azure VMs with a click (resize up or down from the **VM Scaling** section, using only the sizes Azure reports as available)
 - Interactive dashboards for finance, engineering, and cloud operations teams
 - Secure Azure authentication using Managed Identity and RBAC
 - Scalable containerized deployment on Azure Kubernetes Service (AKS)
@@ -151,6 +152,45 @@ Content-Type: application/json
 In mock mode (`MOCK_DATA=true`) nothing is deleted on Azure — findings are just marked
 as destroyed so they stop appearing in the scan, which lets you demo the flow without
 credentials.
+
+---
+
+## Scaling VMs Up / Down
+
+The **VM Scaling** section lists every VM with its current size and the sizes Azure
+reports as available for that VM. Pick a target size, click **Scale**, and confirm.
+
+### Behavior & safety
+
+- Resizing is attempted in place (no downtime). If Azure rejects that for a running VM
+  (target size not available on the current host), the backend falls back to
+  **deallocate → resize → start**, which briefly restarts the VM.
+- The API requires `confirm: true` in the request body — a plain request is rejected with `400`.
+- The UI shows a warning before any resize, and marks upscales ▲ / downscales ▼.
+- Every resize is recorded in an audit log, exposed at `GET /api/scale/audit`
+  (in-memory; also mirrored to `backend/logs/scale-audit.jsonl` on a best-effort basis).
+- The service principal behind `DefaultAzureCredential` must have resize rights, e.g. the
+  **Contributor** role or a custom role granting `Microsoft.Compute/virtualMachines/write`.
+
+### API
+
+```http
+POST /api/scale/vms/resize
+Content-Type: application/json
+
+{
+  "confirm": true,
+  "resources": [
+    { "id": "/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Compute/virtualMachines/vm-01",
+      "targetSize": "Standard_D2s_v3", "currentSize": "Standard_D4s_v3" }
+  ]
+}
+```
+
+List VMs and their available sizes: `GET /api/scale/vms`.
+
+In mock mode (`MOCK_DATA=true`) resizes are simulated in-memory, so the flow is fully
+demoable without Azure credentials.
 
 ---
 

@@ -58,6 +58,11 @@ export const api = {
   // { id, type, name, monthlyCost } — see backend destroyService for details.
   idleDestroy: (resources) => postJson('/api/idle/destroy', { resources, confirm: true }),
   idleDestroyAudit: () => getJson('/api/idle/destroy/audit'),
+  // VMs for scaling, with their available target sizes.
+  vms: () => getJson('/api/scale/vms'),
+  // Resize VMs up/down. `resources` is an array of { id, targetSize, currentSize }.
+  scaleVms: (resources) => postJson('/api/scale/vms/resize', { resources, confirm: true }),
+  scaleAudit: () => getJson('/api/scale/audit'),
 };
 
 /**

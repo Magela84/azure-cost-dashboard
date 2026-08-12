@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 
 import AiAnalyst from '../components/AiAnalyst';
 import IdleResources from '../components/IdleResources';
+import VMScaling from '../components/VMScaling';
 import CostForecast from '../components/CostForecast';
 import CostOverview from '../components/CostOverview';
 import CostByService from '../components/CostByService';
@@ -35,6 +36,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <AiAnalyst />
         <IdleResources />
+        <VMScaling />
         <CostForecast />
         <CostOverview range={range} />
         <CostByService range={range} />
