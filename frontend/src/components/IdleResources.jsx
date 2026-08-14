@@ -20,19 +20,20 @@ function TypeBadge({ type }) {
   return <span className={`rounded px-2 py-0.5 text-xs font-medium ${cls}`}>{type}</span>;
 }
 
-function checkbox(checked, onChange, label) {
+function checkbox(checked, onChange, label, disabled = false) {
   return (
     <input
       type="checkbox"
       aria-label={label}
       checked={checked}
       onChange={onChange}
-      className="h-4 w-4 rounded border-gray-300 text-red-600 accent-red-600"
+      disabled={disabled}
+      className="h-4 w-4 rounded border-gray-300 text-red-600 accent-red-600 disabled:cursor-not-allowed disabled:opacity-40"
     />
   );
 }
 
-export default function IdleResources() {
+export default function IdleResources({ canOperate = true }) {
   const [reloadKey, setReloadKey] = useState(0);
   const { data, loading, error } = useFetch(() => api.idleResources(), [reloadKey]);
 
@@ -63,6 +64,7 @@ export default function IdleResources() {
   const selectedWaste = selectedFindings.reduce((sum, f) => sum + (f.monthlyCost || 0), 0);
 
   function openConfirm() {
+    if (!canOperate) return;
     setResult(null);
     setDestroyError(null);
     setUnderstandChecked(false);
@@ -116,10 +118,10 @@ export default function IdleResources() {
             <button
               type="button"
               onClick={openConfirm}
-              disabled={selected.size === 0}
+              disabled={!canOperate || selected.size === 0}
               className="rounded bg-red-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400"
             >
-              Destroy selected ({selected.size})
+              {canOperate ? `Destroy selected (${selected.size})` : 'Read-only'}
             </button>
           )}
         </div>
@@ -150,7 +152,7 @@ export default function IdleResources() {
             <thead>
               <tr className="border-b border-gray-200 text-xs uppercase text-gray-400">
                 <th className="w-8 py-2 pr-2">
-                  {checkbox(allSelected, toggleAll, 'Select all resources')}
+                  {checkbox(allSelected, toggleAll, 'Select all resources', !canOperate)}
                 </th>
                 <th className="py-2 pr-4">Resource</th>
                 <th className="py-2 pr-4">Type</th>
@@ -163,7 +165,7 @@ export default function IdleResources() {
               {findings.map((f) => (
                 <tr key={f.id} className={`border-b border-gray-100 align-top ${selected.has(f.id) ? 'bg-red-50/50' : ''}`}>
                   <td className="py-2 pr-2">
-                    {checkbox(selected.has(f.id), () => toggle(f.id), `Select ${f.name}`)}
+                    {checkbox(selected.has(f.id), () => toggle(f.id), `Select ${f.name}`, !canOperate)}
                   </td>
                   <td className="py-2 pr-4">
                     <div className="font-medium text-gray-800">{f.name}</div>

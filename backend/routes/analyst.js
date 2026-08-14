@@ -6,12 +6,20 @@ const router = express.Router();
 
 const aiAnalystService = require('../services/aiAnalystService');
 
+const MAX_QUESTION_LENGTH = 2000;
+
 // POST /api/analyst/ask   body: { question }
 router.post('/ask', async (req, res) => {
   const question = (req.body && req.body.question ? String(req.body.question) : '').trim();
 
   if (!question) {
     return res.status(400).json({ error: true, message: 'A question is required.' });
+  }
+  if (question.length > MAX_QUESTION_LENGTH) {
+    return res.status(400).json({
+      error: true,
+      message: `Question is too long (max ${MAX_QUESTION_LENGTH} characters).`,
+    });
   }
   if (!aiAnalystService.hasApiKey()) {
     // Surface a clean, actionable error before opening the event stream.

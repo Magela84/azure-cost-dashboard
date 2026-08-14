@@ -36,7 +36,7 @@ function DirectionBadge({ direction }) {
   );
 }
 
-export default function RightSize() {
+export default function RightSize({ canOperate = true }) {
   const [reloadKey, setReloadKey] = useState(0);
   const { data, loading, error } = useFetch(() => api.rightsize(), [reloadKey]);
 
@@ -49,6 +49,7 @@ export default function RightSize() {
   const recommendations = data?.recommendations || [];
 
   function openConfirm(rec) {
+    if (!canOperate) return;
     setResult(null);
     setApplyError(null);
     setUnderstandChecked(false);
@@ -167,9 +168,10 @@ export default function RightSize() {
                         <button
                           type="button"
                           onClick={() => openConfirm(r)}
-                          className="rounded bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-emerald-700"
+                          disabled={!canOperate}
+                          className="rounded bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400"
                         >
-                          Resize to {r.recommendedSize}
+                          {canOperate ? `Resize to ${r.recommendedSize}` : 'Read-only'}
                         </button>
                       ) : (
                         <span className="text-xs text-gray-400">—</span>

@@ -2,7 +2,6 @@
 *.tfstate
 *.tfstate.*
 .terraform/
-.terraform.lock.hcl
 
 # Local variable files hold credentials.
 terraform.tfvars

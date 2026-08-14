@@ -3,9 +3,12 @@ kind: Service
 metadata:
   name: cost-backend-service
 spec:
-  type: LoadBalancer
+  # ClusterIP only — the API is not exposed directly to the internet. Put an
+  # ingress controller (with TLS) or the frontend service in front instead.
+  type: ClusterIP
   ports:
     - port: 80
-      targetPort: 5000
+      targetPort: 3001
+      name: http
   selector:
     app: cost-backend

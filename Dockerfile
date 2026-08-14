@@ -2,7 +2,7 @@
 # backend so the whole app runs as a single container on one origin.
 
 # --- Stage 1: build the React frontend ---
-FROM node:20-alpine AS frontend
+FROM node:22-alpine AS frontend
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm ci
@@ -10,7 +10,7 @@ COPY frontend/ ./
 RUN npm run build
 
 # --- Stage 2: backend runtime (also serves the built frontend) ---
-FROM node:20-alpine
+FROM node:22-alpine
 ENV NODE_ENV=production
 WORKDIR /app/backend
 
@@ -20,6 +20,11 @@ RUN npm ci --omit=dev
 COPY backend/ ./
 # The backend serves ../frontend/dist relative to its own directory.
 COPY --from=frontend /app/frontend/dist /app/frontend/dist
+
+# Run as the unprivileged `node` user (uid 1000). The audit-log directory must
+# stay writable, so create it and hand everything under /app to the user.
+RUN mkdir -p /app/backend/logs && chown -R node:node /app
+USER node
 
 EXPOSE 3001
 CMD ["node", "server.js"]

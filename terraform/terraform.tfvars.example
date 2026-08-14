@@ -8,7 +8,27 @@ location        = "eastus"
 # resource_group_to_scan = "my-logic-apps-rg"   # defaults to the RG this stack creates
 # mock_data              = "false"               # "true" to run on demo data
 
-# Optional features (leave blank to disable):
+# The Destroy / VM-resize features stay DISABLED by default (the app's identity
+# is read-only). Set to true ONLY if you want them — a custom delete/write role
+# scoped to the scan resource group is then granted.
+# enable_destructive_actions = false
+
+# Optional features (leave blank to disable). Secrets are stored in Key Vault,
+# never in app settings:
 # anthropic_api_key = "sk-ant-..."
 # auth_user         = "admin"
 # auth_password     = "change-me"
+
+# Microsoft Entra ID / OIDC login (preferred over Basic Auth). When all four
+# oidc_* values are set, users sign in with their Microsoft account and only
+# users with the Operator role can destroy/resize resources:
+# oidc_client_id      = "11111111-1111-1111-1111-111111111111"
+# oidc_client_secret  = "a-client-secret"                 # stored in Key Vault
+# oidc_tenant_id      = "22222222-2222-2222-2222-222222222222"
+# oidc_session_secret = "a-long-random-string-16-plus-chars" # stored in Key Vault
+# app_base_url        = "https://dashboard.example.com"
+# oidc_operator_roles = "Operator"
+
+# NOTE: the principal running `terraform apply` must have "Key Vault Secrets
+# Officer" on the created vault (or a role like Owner/Key Vault Administrator)
+# because Terraform creates the secrets themselves.

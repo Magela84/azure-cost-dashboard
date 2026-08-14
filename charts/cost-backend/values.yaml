@@ -1,0 +1,41 @@
+# Default values for the cost-backend chart.
+image:
+  repository: acrcostdashboardvault99.azurecr.io/cost-backend
+  tag: latest
+  pullPolicy: IfNotPresent
+
+replicas: 1
+
+# Non-secret runtime configuration. Populate a ConfigMap with these keys
+# (see the deployment template) — create it separately, e.g.:
+#   kubectl create configmap cost-backend-config \
+#     --from-literal=AZURE_SUBSCRIPTION_ID=... \
+#     --from-literal=AZURE_RESOURCE_GROUP=... \
+#     --from-literal=MOCK_DATA=false
+config:
+  AZURE_SUBSCRIPTION_ID: ""
+  AZURE_RESOURCE_GROUP: ""
+  MOCK_DATA: "false"
+  APP_BASE_URL: ""
+
+# Secrets (ANTHROPIC_API_KEY, AUTH_USER, AUTH_PASSWORD, OIDC_*) must live in a
+# Secret named `cost-backend-secrets`:
+#   kubectl create secret generic cost-backend-secrets \
+#     --from-literal=ANTHROPIC_API_KEY=... \
+#     --from-literal=AUTH_USER=... \
+#     --from-literal=AUTH_PASSWORD=... \
+#     --from-literal=OIDC_CLIENT_ID=... \
+#     --from-literal=OIDC_CLIENT_SECRET=... \
+#     --from-literal=OIDC_TENANT_ID=... \
+#     --from-literal=OIDC_SESSION_SECRET=... \
+#     --from-literal=OIDC_OPERATOR_ROLES=Operator
+# Referenced with `optional: true` so the chart installs without it. When all
+# OIDC_* values resolve, Entra ID login is used instead of Basic Auth.
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

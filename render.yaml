@@ -2,8 +2,12 @@
 # https://render.com/docs/blueprint-spec
 #
 # Runs in mock mode (no Azure needed) on Render's free tier. To use real Azure
-# later, change MOCK_DATA to "false" and add the AZURE_* env vars in the Render
-# dashboard.
+# later:
+#   - change MOCK_DATA to "false",
+#   - add the AZURE_* env vars in the Render dashboard (prefer Render's own
+#     secret env values over plain strings),
+#   - configure Entra ID / OIDC (below) OR set AUTH_USER + AUTH_PASSWORD — the
+#     app REFUSES TO START in production with real data and no auth (fail-closed).
 
 services:
   - type: web
@@ -17,3 +21,29 @@ services:
         value: "true"
       - key: NODE_ENV
         value: production
+      # Uncomment for real Azure usage (mock/demo deployments stay unauthenticated).
+      # - key: AUTH_USER
+      #   value: admin
+      # - key: AUTH_PASSWORD
+      #   sync: false            # set as a secret in the Render dashboard
+      # - key: CORS_ORIGINS
+      #   value: https://your-dashboard.onrender.com
+      # - key: AUDIT_WEBHOOK_URL
+      #   sync: false            # optional durable audit sink
+      #
+      # --- Entra ID / OIDC (preferred over Basic Auth for enterprise use) ---
+      # Register an app in Entra ID, add the redirect URI
+      #   https://your-dashboard.onrender.com/api/auth/callback
+      # then uncomment and fill in:
+      # - key: OIDC_CLIENT_ID
+      #   value: <application (client) ID>
+      # - key: OIDC_CLIENT_SECRET
+      #   sync: false            # set as a secret in the Render dashboard
+      # - key: OIDC_TENANT_ID
+      #   value: <directory (tenant) ID>
+      # - key: OIDC_SESSION_SECRET
+      #   sync: false            # random >= 16 chars, set as a secret
+      # - key: APP_BASE_URL
+      #   value: https://your-dashboard.onrender.com
+      # - key: OIDC_OPERATOR_ROLES
+      #   value: Operator

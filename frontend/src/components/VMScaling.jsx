@@ -36,7 +36,7 @@ function canGoDown(vm) {
   return vm.availableSizes.some((s) => sizeDirection(vm, s.name) === 'down');
 }
 
-export default function VMScaling() {
+export default function VMScaling({ canOperate = true }) {
   const [reloadKey, setReloadKey] = useState(0);
   const { data, loading, error } = useFetch(() => api.vms(), [reloadKey]);
 
@@ -54,6 +54,7 @@ export default function VMScaling() {
   }
 
   function openConfirm(vm) {
+    if (!canOperate) return;
     const targetSize = targets[vm.id];
     if (!targetSize || targetSize === vm.currentSize) return;
     setResult(null);
@@ -155,7 +156,8 @@ export default function VMScaling() {
                         <select
                           value={selected}
                           onChange={(e) => setTarget(vm.id, e.target.value)}
-                          className={`rounded border px-2 py-1 text-sm focus:outline-none ${
+                          disabled={!canOperate}
+                          className={`rounded border px-2 py-1 text-sm focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 ${
                             changed
                               ? 'border-indigo-400 bg-indigo-50 text-indigo-900'
                               : 'border-gray-300'
@@ -179,10 +181,10 @@ export default function VMScaling() {
                       <button
                         type="button"
                         onClick={() => openConfirm(vm)}
-                        disabled={!changed}
+                        disabled={!canOperate || !changed}
                         className="rounded bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400"
                       >
-                        {changed ? `Scale to ${selected}` : 'Scale'}
+                        {canOperate ? (changed ? `Scale to ${selected}` : 'Scale') : 'Read-only'}
                       </button>
                     </td>
                   </tr>

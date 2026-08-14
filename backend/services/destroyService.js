@@ -20,15 +20,15 @@
 // In mock mode (MOCK_DATA=true) nothing is actually deleted — findings are
 // simply marked as "destroyed" so the hunter stops reporting them.
 
-const fs = require('fs');
-const path = require('path');
 const { DefaultAzureCredential } = require('@azure/identity');
 const { ComputeManagementClient } = require('@azure/arm-compute');
 const { NetworkManagementClient } = require('@azure/arm-network');
 
 const idleResourceService = require('./idleResourceService');
+const { createAuditLogger } = require('./auditLogger');
 
 const subscriptionId = process.env.AZURE_SUBSCRIPTION_ID;
+const scanResourceGroup = process.env.AZURE_RESOURCE_GROUP || null;
 
 const KNOWN_TYPES = new Set([
   'Idle VM',
@@ -38,10 +38,8 @@ const KNOWN_TYPES = new Set([
   'Unassociated Public IP',
 ]);
 
-// In-memory audit ring buffer; mirrored to <backend>/logs/destroy-audit.jsonl
-// on a best-effort basis (Render's disk is ephemeral, so keep the memory copy).
-const AUDIT_MAX = 200;
-const auditLog = [];
+// Durable audit trail (memory + file + optional webhook).
+const audit = createAuditLogger('destroy');
 
 let computeClient;
 let networkClient;
@@ -87,6 +85,19 @@ function parseArmId(id) {
 
 function isRealArmId(id) {
   return typeof id === 'string' && id.startsWith('/subscriptions/');
+}
+
+// The ARM ID's subscription must match the one this server is configured for.
+// The resource group (when AZURE_RESOURCE_GROUP is set) must match too, so
+// deletions stay scoped to the intended blast radius.
+function withinAllowedScope(id, parsed) {
+  if (subscriptionId && !id.startsWith(`/subscriptions/${subscriptionId}/`)) {
+    return `Resource is outside the configured subscription (${subscriptionId}).`;
+  }
+  if (scanResourceGroup && parsed.resourceGroup !== scanResourceGroup) {
+    return `Resource is outside the configured resource group (${scanResourceGroup}).`;
+  }
+  return null;
 }
 
 // Delete a VM, then its managed OS/data disks so no storage cost lingers.
@@ -149,6 +160,11 @@ async function destroyRealResources(resources) {
       failed.push({ id: r.id, type: r.type, name: r.name || null, error: 'Could not parse the resource ID.' });
       continue;
     }
+    const scopeError = withinAllowedScope(r.id, parsed);
+    if (scopeError) {
+      failed.push({ id: r.id, type: r.type, name: parsed.name, error: scopeError });
+      continue;
+    }
     try {
       const detail = await destroyResource(compute, network, r.type, parsed);
       succeeded.push({
@@ -196,19 +212,6 @@ async function destroyMockResources(resources) {
   return { succeeded, failed };
 }
 
-function appendAudit(entry) {
-  auditLog.unshift(entry);
-  if (auditLog.length > AUDIT_MAX) auditLog.pop();
-
-  try {
-    const dir = path.join(__dirname, '..', 'logs');
-    fs.mkdirSync(dir, { recursive: true });
-    fs.appendFileSync(path.join(dir, 'destroy-audit.jsonl'), `${JSON.stringify(entry)}\n`);
-  } catch (_) {
-    // File mirroring is best-effort; the in-memory copy still serves the API.
-  }
-}
-
 /**
  * Validate and run a destroy request.
  * @param {{ resources: Array<{id:string,type:string,name?:string,monthlyCost?:number}>, confirm: boolean }} body
@@ -240,7 +243,7 @@ async function destroyResources(body = {}) {
     succeeded.reduce((sum, s) => sum + (s.monthlyCost || 0), 0)
   );
 
-  appendAudit({
+  audit.append({
     timestamp: new Date().toISOString(),
     requested: resources.length,
     succeededCount: succeeded.length,
@@ -269,7 +272,7 @@ async function destroyResources(body = {}) {
 }
 
 function getAudit() {
-  return auditLog;
+  return audit.list();
 }
 
 module.exports = {

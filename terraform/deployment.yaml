@@ -14,8 +14,51 @@ spec:
       labels:
         app: cost-backend
     spec:
+      # Run unprivileged (the image already runs as the `node` user).
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
       containers:
         - name: cost-api
-          image: acrcostdashboardvault99.azurecr.io/cost-backend:latest # Points to your ACR registry
+          image: acrcostdashboardvault99.azurecr.io/cost-backend:latest # Point to your ACR registry
           ports:
-            - containerPort: 5000 # Matches standard Express API ports
+            - containerPort: 3001
+              name: http
+          env:
+            - name: PORT
+              value: "3001"
+            - name: NODE_ENV
+              value: "production"
+            # Configure via a ConfigMap/Secret named cost-backend-config /
+            # cost-backend-secrets (see the Helm chart for the same pattern).
+            - name: AZURE_SUBSCRIPTION_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: cost-backend-config
+                  key: AZURE_SUBSCRIPTION_ID
+                  optional: true
+            - name: AZURE_RESOURCE_GROUP
+              valueFrom:
+                configMapKeyRef:
+                  name: cost-backend-config
+                  key: AZURE_RESOURCE_GROUP
+                  optional: true
+            - name: MOCK_DATA
+              valueFrom:
+                configMapKeyRef:
+                  name: cost-backend-config
+                  key: MOCK_DATA
+                  optional: true
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

@@ -20,18 +20,17 @@
 // In mock mode (MOCK_DATA=true) nothing is touched on Azure — the VM's size is
 // simply updated in an in-memory table so the UI reflects the change.
 
-const fs = require('fs');
-const path = require('path');
 const { DefaultAzureCredential } = require('@azure/identity');
 const { ComputeManagementClient } = require('@azure/arm-compute');
 
 const mockVms = require('../mocks/vms');
+const { createAuditLogger } = require('./auditLogger');
 
 const subscriptionId = process.env.AZURE_SUBSCRIPTION_ID;
+const scanResourceGroup = process.env.AZURE_RESOURCE_GROUP || null;
 
-// In-memory audit ring buffer; mirrored to <backend>/logs/scale-audit.jsonl.
-const AUDIT_MAX = 200;
-const auditLog = [];
+// Durable audit trail (memory + file + optional webhook).
+const audit = createAuditLogger('scale');
 
 let computeClient;
 
@@ -65,6 +64,19 @@ function parseArmId(id) {
 
 function isRealArmId(id) {
   return typeof id === 'string' && id.startsWith('/subscriptions/');
+}
+
+// The ARM ID's subscription must match the one this server is configured for.
+// The resource group (when AZURE_RESOURCE_GROUP is set) must match too, so
+// destructive/resizing actions stay scoped to the intended blast radius.
+function withinAllowedScope(id, parsed) {
+  if (subscriptionId && !id.startsWith(`/subscriptions/${subscriptionId}/`)) {
+    return `Resource is outside the configured subscription (${subscriptionId}).`;
+  }
+  if (scanResourceGroup && parsed.resourceGroup !== scanResourceGroup) {
+    return `Resource is outside the configured resource group (${scanResourceGroup}).`;
+  }
+  return null;
 }
 
 function compareSizes(a, b) {
@@ -191,6 +203,11 @@ async function resizeRealVms(resources) {
       failed.push({ id: r.id, targetSize: r.targetSize, error: 'Could not parse the resource ID.' });
       continue;
     }
+    const scopeError = withinAllowedScope(r.id, parsed);
+    if (scopeError) {
+      failed.push({ id: r.id, name: parsed.name, targetSize: r.targetSize, error: scopeError });
+      continue;
+    }
     try {
       const detail = await resizeRealVm(compute, parsed.resourceGroup, parsed.name, r.targetSize);
       succeeded.push({
@@ -207,19 +224,6 @@ async function resizeRealVms(resources) {
   }
 
   return { succeeded, failed };
-}
-
-function appendAudit(entry) {
-  auditLog.unshift(entry);
-  if (auditLog.length > AUDIT_MAX) auditLog.pop();
-
-  try {
-    const dir = path.join(__dirname, '..', 'logs');
-    fs.mkdirSync(dir, { recursive: true });
-    fs.appendFileSync(path.join(dir, 'scale-audit.jsonl'), `${JSON.stringify(entry)}\n`);
-  } catch (_) {
-    // File mirroring is best-effort; the in-memory copy still serves the API.
-  }
 }
 
 /**
@@ -249,7 +253,7 @@ async function resizeVms(body = {}) {
     ? await resizeMockVms(resources)
     : await resizeRealVms(resources);
 
-  appendAudit({
+  audit.append({
     timestamp: new Date().toISOString(),
     requested: resources.length,
     succeededCount: succeeded.length,
@@ -276,7 +280,7 @@ async function resizeVms(body = {}) {
 }
 
 function getAudit() {
-  return auditLog;
+  return audit.list();
 }
 
 function resetMock() {

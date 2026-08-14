@@ -5,7 +5,7 @@ metadata:
   labels:
     app: cost-backend
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicas }}
   selector:
     matchLabels:
       app: cost-backend
@@ -14,8 +14,109 @@ spec:
       labels:
         app: cost-backend
     spec:
+      # Run unprivileged (the image already runs as the `node` user).
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
       containers:
         - name: cost-api
-          image: acrcostdashboardvault99.azurecr.io/cost-backend:latest
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: 5000
+            - containerPort: 3001
+              name: http
+          env:
+            - name: PORT
+              value: "3001"
+            - name: NODE_ENV
+              value: "production"
+            # Non-secret config from a ConfigMap (see values.yaml for how to create it).
+            - name: AZURE_SUBSCRIPTION_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: cost-backend-config
+                  key: AZURE_SUBSCRIPTION_ID
+                  optional: true
+            - name: AZURE_RESOURCE_GROUP
+              valueFrom:
+                configMapKeyRef:
+                  name: cost-backend-config
+                  key: AZURE_RESOURCE_GROUP
+                  optional: true
+            - name: MOCK_DATA
+              valueFrom:
+                configMapKeyRef:
+                  name: cost-backend-config
+                  key: MOCK_DATA
+                  optional: true
+            # Secrets from a Secret (see values.yaml). Referenced optionally so
+            # the chart installs cleanly; set the secret before using real data.
+            - name: ANTHROPIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: cost-backend-secrets
+                  key: ANTHROPIC_API_KEY
+                  optional: true
+            - name: AUTH_USER
+              valueFrom:
+                secretKeyRef:
+                  name: cost-backend-secrets
+                  key: AUTH_USER
+                  optional: true
+            - name: AUTH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cost-backend-secrets
+                  key: AUTH_PASSWORD
+                  optional: true
+            # Entra ID / OIDC login (takes precedence over Basic Auth when all
+            # OIDC_CLIENT_ID/CLIENT_SECRET/TENANT_ID/SESSION_SECRET resolve).
+            - name: OIDC_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: cost-backend-secrets
+                  key: OIDC_CLIENT_ID
+                  optional: true
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: cost-backend-secrets
+                  key: OIDC_CLIENT_SECRET
+                  optional: true
+            - name: OIDC_TENANT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: cost-backend-secrets
+                  key: OIDC_TENANT_ID
+                  optional: true
+            - name: OIDC_SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: cost-backend-secrets
+                  key: OIDC_SESSION_SECRET
+                  optional: true
+            - name: OIDC_OPERATOR_ROLES
+              valueFrom:
+                secretKeyRef:
+                  name: cost-backend-secrets
+                  key: OIDC_OPERATOR_ROLES
+                  optional: true
+            - name: APP_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: cost-backend-config
+                  key: APP_BASE_URL
+                  optional: true
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: {{ .Values.resources.requests.cpu }}
+              memory: {{ .Values.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.resources.limits.cpu }}
+              memory: {{ .Values.resources.limits.memory }}

@@ -27,6 +27,16 @@ async function getJson(path, params) {
   return res.json();
 }
 
+// Thrown when the caller is not signed in. `loginUrl` tells the app where to
+// send the user (an OIDC login endpoint, or null when Basic Auth is in play).
+export class AuthError extends Error {
+  constructor(loginUrl) {
+    super('Authentication required.');
+    this.name = 'AuthError';
+    this.loginUrl = loginUrl;
+  }
+}
+
 async function postJson(path, body) {
   const res = await fetch(path, {
     method: 'POST',
@@ -48,6 +58,21 @@ async function postJson(path, body) {
 }
 
 export const api = {
+  // Who am I? Returns { auth, name, email, roles, canOperate }. On 401 with a
+  // loginUrl the user must sign in (OIDC mode); without one the browser prompt
+  // was refused (Basic Auth mode), so the page just reloads.
+  profile: async () => {
+    const res = await fetch('/api/auth/profile');
+    if (res.ok) return res.json();
+    let loginUrl = null;
+    try {
+      const body = await res.json();
+      if (body && typeof body.loginUrl === 'string') loginUrl = body.loginUrl;
+    } catch (_) {
+      /* non-JSON body */
+    }
+    throw new AuthError(loginUrl);
+  },
   costOverview: (range) => getJson('/api/costs/overview', range),
   costByService: (range) => getJson('/api/costs/by-service', range),
   costForecast: () => getJson('/api/costs/forecast'),
