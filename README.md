@@ -30,7 +30,11 @@ The **Azure Cost Visibility Dashboard** is an enterprise cloud cost management s
 
 | Cost Overview | Idle Resource Hunter |
 |:-------------:|:--------------------:|
-| ![Cost Overview](screenshots/cost-overview.png) | ![Idle Resource Hunter](screenshots/idle-resource-hunter.png) |
+| ![Cost Overview](screenshots/overview.png) | ![Idle Resource Hunter](screenshots/idle-hunter.png) |
+
+| Forecasting | Budget Alerts |
+|:-----------:|:-------------:|
+| ![Forecasting](screenshots/forecast.png) | ![Budget Alerts](screenshots/budget-alerts.png) |
 
 ---
 
