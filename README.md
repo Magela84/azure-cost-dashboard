@@ -146,18 +146,11 @@ reports as available for that VM. Pick a target size, click **Scale**, and confi
 
 ### Behavior & safety
 
-- Resizing is attempted in place (no downtime). If Azure rejects that for a running VM
-  (target size not available on the current host), the backend falls back to
-  **deallocate → resize → start**, which briefly restarts the VM.
-- The API requires `confirm: true` in the request body — a plain request is rejected with `400`.
-- The UI shows a warning before any resize, and marks upscales ▲ / downscales ▼.
-- Every resize is recorded in an audit log, exposed at `GET /api/scale/audit`
-  (in-memory; also mirrored to `backend/logs/scale-audit.jsonl` on a best-effort basis).
-- The service principal behind `DefaultAzureCredential` must have resize rights, e.g. the
-  **Contributor** role or a custom role granting `Microsoft.Compute/virtualMachines/write`.
-
-In mock mode (`MOCK_DATA=true`) resizes are simulated in-memory, so the flow is fully
-demoable without Azure credentials.
+- **In-place resize** — no downtime unless Azure rejects the target on the current host, in which case it falls back to deallocate → resize → start
+- **Confirmation required** — all resize requests must include `confirm: true`
+- **Full audit trail** — every resize is logged to an audit endpoint
+- **Role-based access** — the service principal needs write rights on VMs
+- **Mock mode** — run with `MOCK_DATA=true` to demo without Azure credentials
 
 ---
 
