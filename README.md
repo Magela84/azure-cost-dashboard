@@ -157,21 +157,6 @@ one and the results (plus the audit trail) are shown.
   hides the buttons for read-only users. Sign-in is at `/api/auth/login`, sign-out at
   `/api/auth/logout`, and the current user + role is exposed at `GET /api/auth/profile`.
 
-### API
-
-```http
-POST /api/idle/destroy
-Content-Type: application/json
-
-{
-  "confirm": true,
-  "resources": [
-    { "id": "/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Compute/virtualMachines/vm-01",
-      "type": "Idle VM", "name": "vm-01", "monthlyCost": 280.32 }
-  ]
-}
-```
-
 In mock mode (`MOCK_DATA=true`) nothing is deleted on Azure — findings are just marked
 as destroyed so they stop appearing in the scan, which lets you demo the flow without
 credentials.
@@ -195,23 +180,6 @@ reports as available for that VM. Pick a target size, click **Scale**, and confi
 - The service principal behind `DefaultAzureCredential` must have resize rights, e.g. the
   **Contributor** role or a custom role granting `Microsoft.Compute/virtualMachines/write`.
 
-### API
-
-```http
-POST /api/scale/vms/resize
-Content-Type: application/json
-
-{
-  "confirm": true,
-  "resources": [
-    { "id": "/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Compute/virtualMachines/vm-01",
-      "targetSize": "Standard_D2s_v3", "currentSize": "Standard_D4s_v3" }
-  ]
-}
-```
-
-List VMs and their available sizes: `GET /api/scale/vms`.
-
 In mock mode (`MOCK_DATA=true`) resizes are simulated in-memory, so the flow is fully
 demoable without Azure credentials.
 
@@ -233,16 +201,6 @@ monthly cost impact of the recommended size:
 - Apply a downsize directly from the card — it reuses the **VM Scaling** resize flow, with the
   same confirmation and audit-log safety, so both cards stay in sync.
 - Costs use pay-as-you-go list prices; the numbers are guidance, not a billing invoice.
-
-### API
-
-```http
-GET /api/rightsize
-```
-
-Returns `{ totalMonthlySavings, totalMonthlyCostRisk, count, currency, recommendations[] }`,
-each recommendation carrying `direction`, `currentSize`, `recommendedSize`, `avgCpuPct`,
-`avgMemoryPct`, `estimatedUtilAfterPct`, `monthlyCost` and `monthlySavings`.
 
 The service principal behind `DefaultAzureCredential` needs read access to Azure Monitor
 metrics (`Microsoft.Insights/Metrics/Read`, e.g. the **Monitoring Reader** role).
