@@ -156,23 +156,13 @@ reports as available for that VM. Pick a target size, click **Scale**, and confi
 
 ## Right-Sizing Recommendations
 
-The **Right-Sizing** section uses VM utilization (CPU + memory, last 14 days of Azure
-Monitor metrics) to flag VMs that are over- or under-provisioned, and shows the estimated
-monthly cost impact of the recommended size:
+Uses VM utilization (CPU + memory over 14 days) to flag over- and under-provisioned VMs:
 
-- **▼ downsize** — utilization is comfortably below capacity; the recommendation saves money
-  each month (`current size → cheaper size`, savings shown as `−$/mo`).
-- **▲ upsize** — utilization is consistently above 85%; the VM is at risk of
-  under-provisioning, and the extra cost of the larger size is shown as `+$/mo`.
-- Recommended sizes are chosen from the same Azure-available size list used by VM Scaling,
-  sized so the projected utilization after the change lands in a healthy band
-  (~35–80% CPU, ~50% memory).
-- Apply a downsize directly from the card — it reuses the **VM Scaling** resize flow, with the
-  same confirmation and audit-log safety, so both cards stay in sync.
-- Costs use pay-as-you-go list prices; the numbers are guidance, not a billing invoice.
-
-The service principal behind `DefaultAzureCredential` needs read access to Azure Monitor
-metrics (`Microsoft.Insights/Metrics/Read`, e.g. the **Monitoring Reader** role).
+- **▼ downsize** — saves money when utilization is below capacity
+- **▲ upsize** — flags risk when utilization exceeds 85%
+- Recommended sizes target a healthy band (~35–80% CPU, ~50% memory)
+- Apply changes directly from the card — reuses the VM Scaling resize flow
+- Costs are pay-as-you-go list prices (guidance, not billing)
 
 In mock mode (`MOCK_DATA=true`) utilization comes from simulated values, so the feature is
 fully demoable without Azure credentials.
