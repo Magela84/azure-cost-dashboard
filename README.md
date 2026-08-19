@@ -130,36 +130,12 @@ one and the results (plus the audit trail) are shown.
 
 ### Safety & permissions
 
-- The API requires `confirm: true` in the request body — a plain request is rejected with `400`.
-- Every destroy is recorded in a durable audit log, exposed at `GET /api/idle/destroy/audit`.
-  Entries are kept in memory, mirrored to `backend/logs/destroy-audit.jsonl`, and — when
-  `AUDIT_WEBHOOK_URL` is configured — forwarded to an external sink (Log Analytics, SIEM)
-  so the trail survives container restarts.
-- Destructive operations are scoped: submitted resource IDs must be inside the configured
-  `AZURE_SUBSCRIPTION_ID`, and when `AZURE_RESOURCE_GROUP` is set, inside that group too.
-- The service principal behind `DefaultAzureCredential` must have delete rights, e.g. the
-  **Contributor** role or a custom role granting `Microsoft.Compute/virtualMachines/delete`,
-  `Microsoft.Compute/disks/delete`, `Microsoft.Compute/snapshots/delete`, and
-  `Microsoft.Network/publicIPAddresses/delete`. The Terraform stack grants this only when
-  `enable_destructive_actions = true` (read-only by default).
-- The whole app is guarded by HTTP Basic Auth when `AUTH_USER`/`AUTH_PASSWORD` are set, or by
-  **Microsoft Entra ID / OIDC** when all of `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`,
-  `OIDC_TENANT_ID`, `OIDC_SESSION_SECRET` and `APP_BASE_URL` are set (OIDC takes precedence).
-  In production
-  (`NODE_ENV=production`) with real Azure data the server **refuses to start** unless one of
-  the two is configured (fail-closed). Rate limiting protects the API and destructive
-  endpoints, and repeated bad Basic logins lock out the client IP.
-- With OIDC, each user signs in with their own Microsoft identity. Destructive actions
-  (destroy / resize) additionally require an **Operator** role: the value(s) of
-  `OIDC_OPERATOR_ROLES` (default `Operator`) are matched against the user's `roles` and
-  `groups` claims, so define an Entra app role (or emit group claims) and assign it to the
-  people who may change Azure state. The API still enforces this server-side — the UI just
-  hides the buttons for read-only users. Sign-in is at `/api/auth/login`, sign-out at
-  `/api/auth/logout`, and the current user + role is exposed at `GET /api/auth/profile`.
-
-In mock mode (`MOCK_DATA=true`) nothing is deleted on Azure — findings are just marked
-as destroyed so they stop appearing in the scan, which lets you demo the flow without
-credentials.
+- **Confirmation required** — all destructive requests must include `confirm: true`
+- **Full audit trail** — every action is logged to an audit endpoint and optionally forwarded to Log Analytics/SIEM
+- **Scoped operations** — resource IDs are restricted to the configured subscription and resource group
+- **Role-based access** — the service principal needs delete rights; destructive actions require Operator role with OIDC
+- **Authentication** — secured with Basic Auth, Microsoft Entra ID, or OIDC (production fails closed if unconfigured)
+- **Mock mode** — run with `MOCK_DATA=true` to demo without Azure credentials
 
 ---
 
