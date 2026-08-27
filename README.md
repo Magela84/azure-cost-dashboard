@@ -16,10 +16,17 @@ I built an Azure Cost Automation Dashboard to give stakeholders visibility into 
 
 Azure Functions App, React, Microsoft Entra ID, Managed identity, Azure RBAC, Azure Cost Management API, serverless computing, authentication and authorization, Azure cost optimization.
 
+---
+
 ## Architecture
 
 React dashboard to function app to managed identity, to Entra ID, to Azure Cost Management API, back to function, then architecture diagram.
-![Architecture Diagram](images/architecture diagram image.png)
+
+![Architecture Diagram](screenshots/architecture-diagram.png)
+
+---
+
+## Key Features
 
 
 ---
