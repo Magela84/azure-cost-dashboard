@@ -24,10 +24,6 @@ React dashboard to function app to managed identity, to Entra ID, to Azure Cost 
 
 ![Architecture Diagram](screenshots/architecture-diagram.png)
 
----
-
-## Key Features
-
 
 ---
 
