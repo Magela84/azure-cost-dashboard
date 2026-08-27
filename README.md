@@ -8,22 +8,17 @@ Designed for **finance, healthcare, insurance, and e-commerce**, this enterprise
 
 ## Project Overview
 
-The **Azure Cost Visibility Dashboard** is an enterprise cloud cost management solution that provides real-time visibility into Azure spending, AI-powered cost analysis, and automated resource optimization. Built with **React**, **Node.js**, **Azure Functions**, and **Azure Kubernetes Service (AKS)**, the application securely retrieves Azure Cost Management data using **Azure Managed Identity** and **Role-Based Access Control (RBAC)**. It enables finance, engineering, and cloud operations teams to monitor cloud costs, identify optimization opportunities, reduce unnecessary spending, and strengthen cloud governance across Azure environments.
+I built an Azure Cost Automation Dashboard to give stakeholders visibility into Azure spend, spot idle or underutilized resources, and support cost optimization decisions.
 
 ---
 
-## Key Features
+## Key skills demonstrated
 
-- Centralized Azure spend tracking with per-service cost breakdowns
-- AI-powered cost analysis and idle resource detection
-- Budget forecasting, burn-down charts, and automated alerts
-- One-click cleanup of idle/orphaned resources (destroy VMs, disks, snapshots, and orphaned public IPs directly from the Idle Resource Hunter)
-- Right-size Azure VMs with a click (resize up or down from the **VM Scaling** section, using only the sizes Azure reports as available)
-- Utilization-based **right-sizing recommendations** with monthly savings estimates (find over- and under-provisioned VMs and apply downsizes directly)
-- Interactive dashboards for finance, engineering, and cloud operations teams
-- Secure Azure authentication using Managed Identity and RBAC
-- Scalable containerized deployment on Azure Kubernetes Service (AKS)
+Azure Functions App, React, Microsoft Entra ID, Managed identity, Azure RBAC, Azure Cost Management API, serverless computing, authentication and authorization, Azure cost optimization.
 
+## Architecture
+
+React dashboard to function app to managed identity, to Entra ID, to Azure Cost Management API, back to function, then architecture diagram.
 ---
 
 ## Screenshots
@@ -38,104 +33,45 @@ The **Azure Cost Visibility Dashboard** is an enterprise cloud cost management s
 
 ---
 
-## Business Value
+##  Business Problem
 
-Manual cloud cost tracking and uncontrolled spending can threaten financial control, especially in regulated industries. This dashboard empowers organizations to reduce cloud waste, improve financial governance, simplify audits, and maintain compliance by centralizing cost analytics and automating budget monitoring.
+The business was facing increasing Azure costs because stakeholders lacked centralized visibility into Azure spend.
+---
+
+## Solution
+I built a React frontend with an Azure Function backend that securely retrieves, processes, and presents cost data. 
+
+### Business Value
+React, Azure Function App, Microsoft Entra ID, managed identity, Azure RBAC, Azure Cost Management API.
 
 ---
 
-## Tech Stack
 
-### Backend
+### 3. Technology stack
 
-- Node.js
-- Express.js
-- Azure Functions
-- Azure Cost Management APIs
+React, Azure Function App, Microsoft Entra ID, managed identity, Azure RBAC, Azure Cost Management API.
 
-### Frontend
+### 4. Data flow
 
-- React
-- Tailwind CSS
-- Recharts
-
-### AI
-
-- Anthropic Claude
-
-### Cloud Platform
-
-- Azure Kubernetes Service (AKS)
-- Azure Container Registry (ACR)
-
-### Security
-
-- Azure Managed Identity
-- Role-Based Access Control (RBAC)
-- HTTP Basic Authentication (fallback)
-- Microsoft Entra ID / OIDC authentication with Operator RBAC
-- CORS Configuration
-
+The React dashboard sends a request, the function app uses managed identity authenticates through Entra ID for an access token, Entra ID issues access token Function app uses access token to securely calls the Azure cost management API, The API checks RBAC permissions If authorized, the API returns the raw cost data to the function app. processes and formats the data, returns clean results to the dashboard. 
 ---
 
-## Deployment
-
-### 1. Local Development
-
-- Initialized an Azure Functions Node.js v4 backend using Visual Studio Code
-- Installed Azure Identity and Azure Cost Management SDKs
-- Developed REST APIs to retrieve Daily Actual Cost data from Azure
-- Tested the application locally on `localhost:7071`
-
-### 2. Infrastructure & AKS Deployment
-
-- Logged into Azure using Azure CLI
-- Created an isolated Resource Group and Storage Account
-- Provisioned an Azure Kubernetes Service (AKS) cluster
-- Built and containerized application images
-- Deployed containers to AKS for scalable, highly available hosting
-
-### 3. Cloud Security
-
-- Published backend services using Azure Functions Core Tools and Azure Container Registry
-- Enabled System-Assigned Managed Identity for passwordless authentication
-- Assigned the Cost Management Reader role using Azure RBAC
-- Configured CORS to allow only the frontend application
-
-### 4. Application Integration
-
-- Connected the React frontend to the live Azure Function APIs
-- Updated API endpoints to communicate with Azure services
-- Verified end-to-end connectivity using Azure Log Streams and AKS monitoring
-
----
-
-## Destroying Idle Resources
+## Cloud Security
+Managed identity removes store secrets. Entra ID authenticates and issues a token, RBAC enforces least privilege read-only access. 
 
 The **Idle Resource Hunter** can also permanently delete the waste it finds. Select
 resources, click **Destroy selected**, and confirm — each finding is deleted one by
 one and the results (plus the audit trail) are shown.
 
-### What each type does
+### Prerequisites
 
-| Type | Action |
-|------|--------|
-| Idle VM / Deallocated VM | Deletes the VM **and** its managed OS/data disks |
-| Unattached Disk | Deletes the managed disk |
-| Stale Snapshot | Deletes the snapshot |
-| Unassociated Public IP | Deletes the public IP address |
+Azure subscription, Azure Functions App, Entra ID tenant, access to the Azure Cost Management API, appropriate RBAC permissions like Cost management reader.
 
-> **⚠️ Warning:** Deletion is irreversible. VMs are deleted along with their disks
-> (data loss). The UI always requires an explicit confirmation before anything runs.
+### Future improvements
 
-### Safety & permissions
+add a database for historical trends, email reports.
 
-- **Confirmation required** — all destructive requests must include `confirm: true`
-- **Full audit trail** — every action is logged to an audit endpoint and optionally forwarded to Log Analytics/SIEM
-- **Scoped operations** — resource IDs are restricted to the configured subscription and resource group
-- **Role-based access** — the service principal needs delete rights; destructive actions require Operator role with OIDC
-- **Authentication** — secured with Basic Auth, Microsoft Entra ID, or OIDC (production fails closed if unconfigured)
-- **Mock mode** — run with `MOCK_DATA=true` to demo without Azure credentials
+
 
 ---
 
