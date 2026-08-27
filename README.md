@@ -20,18 +20,7 @@ Azure Functions App, React, Microsoft Entra ID, Managed identity, Azure RBAC, Az
 
 React dashboard to function app to managed identity, to Entra ID, to Azure Cost Management API, back to function, then architecture diagram.
 
-Azure Cost Automation Dashboard
-uses identity
-request
-Managed Identity
-Microsoft Entra ID
-Azure Cost Management API
-Azure Function App
-React Dashboard
-cost data
-authorizes access
-authenticates
-processed cost data
+
 ---
 
 ## Screenshots
