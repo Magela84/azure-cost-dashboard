@@ -20,7 +20,7 @@ Azure Functions App, React, Microsoft Entra ID, Managed identity, Azure RBAC, Az
 
 ## Architecture
 
-React dashboard to function app to managed identity, to Entra ID, to Azure Cost Management API, back to function, then architecture diagram.
+React dashboard to function app to managed identity, to Entra ID, to Azure Cost Management API, Azure RBA, back to function, then architecture diagram.
 
 ![Architecture Diagram](screenshots/architecture-diagram.png)
 
