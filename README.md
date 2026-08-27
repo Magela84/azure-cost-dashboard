@@ -8,7 +8,7 @@ Designed for **finance, healthcare, insurance, and e-commerce**, this enterprise
 
 ## Project Overview
 
-I built an Azure Cost Automation Dashboard to give stakeholders visibility into Azure spend, spot idle or underutilized resources, and support cost optimization decisions.
+I built the **Azure Cost Visibility Dashboard** to give stakeholders visibility into Azure spend, spot idle or underutilized resources, and support cost optimization decisions.
 
 ---
 
