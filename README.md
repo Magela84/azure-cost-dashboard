@@ -103,16 +103,6 @@ Uses VM utilization (CPU + memory over 14 days) to flag over- and under-provisio
 In mock mode (`MOCK_DATA=true`) utilization comes from simulated values, so the feature is
 fully demoable without Azure credentials.
 
----
-
-## Value Delivered
-
-- Real-time Azure cost visibility across cloud services
-- Automated detection of spend anomalies and idle resources
-- AI-powered recommendations for cost savings
-- Improved cloud governance and financial transparency
-- Secure authentication using Azure Managed Identity
-- Enterprise-ready scalability with Azure Kubernetes Service (AKS)
 
 ---
 
