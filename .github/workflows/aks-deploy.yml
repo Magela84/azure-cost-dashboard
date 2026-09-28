@@ -1,9 +1,9 @@
 # ============================================================
-# AZURE COST DASHBOARD - AKS CI/CD PIPELINE
-# Builds the backend container and deploys it to AKS.
+# AZURE COST DASHBOARD - CONTAINER CI PIPELINE
+# Builds the backend container and pushes it to Azure Container Registry.
 # ============================================================
 
-name: 'Azure Cost Dashboard Container GitOps Pipeline'
+name: 'Azure Cost Dashboard Container CI Pipeline'
 
 
 # ------------------------------------------------------------
@@ -33,7 +33,7 @@ permissions:
 jobs:
   build-and-deploy:
 
-    name: 'Package and Deploy API to AKS'
+    name: 'Build and Push API Container'
     runs-on: ubuntu-latest
 
 
@@ -79,26 +79,3 @@ jobs:
         run: |
           docker build -t "${{ secrets.ACR_NAME }}.azurecr.io/cost-backend:latest" ./backend
           docker push "${{ secrets.ACR_NAME }}.azurecr.io/cost-backend:latest"
-
-
-      # --------------------------------------------------------
-      # STEP 5: CONNECT TO AKS
-      # Sets the Kubernetes context for the AKS cluster.
-      # --------------------------------------------------------
-
-      - name: Connect to AKS Cluster Context
-        uses: azure/aks-set-context@v4
-        with:
-          resource-group: ${{ secrets.AKS_RESOURCE_GROUP }}
-          cluster-name: ${{ secrets.AKS_CLUSTER_NAME }}
-
-
-      # --------------------------------------------------------
-      # STEP 6: DEPLOY TO AKS WITH HELM
-      # Deploys or updates the backend in the AKS cluster.
-      # --------------------------------------------------------
-
-      - name: Run Helm Upgrade Deployment
-        run: |
-          helm upgrade --install cost-backend ./charts/cost-backend --namespace default \
-            --set image.repository="${{ secrets.ACR_NAME }}.azurecr.io/cost-backend"
