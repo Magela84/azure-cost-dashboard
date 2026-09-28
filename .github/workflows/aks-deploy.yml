@@ -1,55 +1,104 @@
+# ============================================================
+# AZURE COST DASHBOARD - AKS CI/CD PIPELINE
+# Builds the backend container and deploys it to AKS.
+# ============================================================
+
 name: 'Azure Cost Dashboard Container GitOps Pipeline'
+
+
+# ------------------------------------------------------------
+# TRIGGER
+# Runs when code is pushed to the main branch.
+# ------------------------------------------------------------
 
 on:
   push:
     branches: [ "main" ]
 
+
+# ------------------------------------------------------------
+# PERMISSIONS
+# id-token: write is required for Azure OIDC authentication.
+# ------------------------------------------------------------
+
 permissions:
   contents: read
   id-token: write
 
+
+# ============================================================
+# BUILD AND DEPLOY JOB
+# ============================================================
+
 jobs:
   build-and-deploy:
+
     name: 'Package and Deploy API to AKS'
     runs-on: ubuntu-latest
 
-    env:
-      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      ACR_NAME: ${{ secrets.ACR_NAME }}
-      AKS_RESOURCE_GROUP: ${{ secrets.AKS_RESOURCE_GROUP }}
-      AKS_CLUSTER_NAME: ${{ secrets.AKS_CLUSTER_NAME }}
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
 
-    # NOTE: prefer OIDC federation over long-lived client secrets for
-    # production (create an Entra app + federated credential and use
-    # azure/login with auth-type: OIDC).
-    - name: Azure CLI Login
-      uses: azure/login@v2
-      with:
-        creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+      # --------------------------------------------------------
+      # STEP 1: CHECKOUT CODE
+      # Downloads the repository to the GitHub runner.
+      # --------------------------------------------------------
 
-    - name: Authenticate ACR Docker Registry
-      run: az acr login --name "${{ secrets.ACR_NAME }}"
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    # Packages your real Express app/Node files into a clean Docker image
-    - name: Build and Push Cost Backend Image
-      run: |
-        docker build -t "${{ secrets.ACR_NAME }}.azurecr.io/cost-backend:latest" ./backend
-        docker push "${{ secrets.ACR_NAME }}.azurecr.io/cost-backend:latest"
 
-    - name: Connect to AKS Cluster Context
-      uses: azure/aks-set-context@v4
-      with:
-        resource-group: ${{ secrets.AKS_RESOURCE_GROUP }}
-        cluster-name: ${{ secrets.AKS_CLUSTER_NAME }}
+      # --------------------------------------------------------
+      # STEP 2: AZURE LOGIN USING OIDC
+      # Secure Azure authentication without a client secret.
+      # --------------------------------------------------------
 
-    - name: Run Helm Upgrade Deployment
-      run: |
-        helm upgrade --install cost-backend ./charts/cost-backend --namespace default \
-          --set image.repository="${{ secrets.ACR_NAME }}.azurecr.io/cost-backend"
+      - name: Azure Login with OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+
+      # --------------------------------------------------------
+      # STEP 3: LOGIN TO AZURE CONTAINER REGISTRY
+      # Allows Docker to push the backend image to ACR.
+      # --------------------------------------------------------
+
+      - name: Authenticate ACR Docker Registry
+        run: az acr login --name "${{ secrets.ACR_NAME }}"
+
+
+      # --------------------------------------------------------
+      # STEP 4: BUILD AND PUSH BACKEND IMAGE
+      # Builds the backend Docker image and pushes it to ACR.
+      # --------------------------------------------------------
+
+      - name: Build and Push Cost Backend Image
+        run: |
+          docker build -t "${{ secrets.ACR_NAME }}.azurecr.io/cost-backend:latest" ./backend
+          docker push "${{ secrets.ACR_NAME }}.azurecr.io/cost-backend:latest"
+
+
+      # --------------------------------------------------------
+      # STEP 5: CONNECT TO AKS
+      # Sets the Kubernetes context for the AKS cluster.
+      # --------------------------------------------------------
+
+      - name: Connect to AKS Cluster Context
+        uses: azure/aks-set-context@v4
+        with:
+          resource-group: ${{ secrets.AKS_RESOURCE_GROUP }}
+          cluster-name: ${{ secrets.AKS_CLUSTER_NAME }}
+
+
+      # --------------------------------------------------------
+      # STEP 6: DEPLOY TO AKS WITH HELM
+      # Deploys or updates the backend in the AKS cluster.
+      # --------------------------------------------------------
+
+      - name: Run Helm Upgrade Deployment
+        run: |
+          helm upgrade --install cost-backend ./charts/cost-backend --namespace default \
+            --set image.repository="${{ secrets.ACR_NAME }}.azurecr.io/cost-backend"
